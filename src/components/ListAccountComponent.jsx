@@ -6,7 +6,8 @@ class ListAccountComponent extends Component {
     constructor(props){
         super(props);
         this.state={
-            accounts: []
+            accounts: [],
+            mes:''
         }
     }
     
@@ -23,11 +24,11 @@ class ListAccountComponent extends Component {
             console.log(data);
         });
     }
-    remove() {
-        let uid = localStorage.getItem('uid');
-        AccountService.deleteAccount(uid).then(response => {
+    remove(id) {
+        AccountService.removeAccount(id).then(response => {
             let data = response.data;
             console.log(data);
+            this.componentDidMount();
         });
     }
     render() {
@@ -52,7 +53,7 @@ class ListAccountComponent extends Component {
                                 <tr key={account.id}>
                                     <td>{account.id}</td>
                                     <td>{account.balance}</td>
-                                    <td><button onClick=""></button>{account.balance}</td>
+                                    <td><a onClick={() => this.remove(account.id)} className="btn btn-outline-primary">Remove</a></td>
                                 </tr>)
                             }
                         </tbody>

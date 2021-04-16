@@ -1,14 +1,16 @@
 import axios from 'axios';
 
-const TRANASACTION_API_BASE_URL = "http://localhost:9090/api/v1/alltransactions/";
-const TRANASACTION_API_SET_URL = "http://localhost:9090/api/v1/transaction/";
-const TRANASACTION_API_FILTER_URL = "http://localhost:9090/api/v1/filter/";
-const TRANASACTION_API_UPDATE_URL = "http://localhost:9090/api/v1/transaction/update/";
+const BASE_URL = "http://localhost:9090/api/v1/alltransactions/";
+const SET_URL = "http://localhost:9090/api/v1/transaction/";
+const FILTER_URL = "http://localhost:9090/api/v1/filter/";
+const UPDATE_URL = "http://localhost:9090/api/v1/transaction/update/";
+const VIEW_URL = "http://localhost:9090/api/v1/transaction/view/";
+const ACTION_URL = "http://localhost:9090/api/v1/transaction/";
 
 class TransactionService{
     getAllTransactions(){
         const token = localStorage.getItem('jwtToken');
-        return axios.get(TRANASACTION_API_BASE_URL, {
+        return axios.get(BASE_URL, {
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
@@ -17,7 +19,16 @@ class TransactionService{
     }
     getAllTransactionById(uid){
         const token = localStorage.getItem('jwtToken');
-        return axios.get(TRANASACTION_API_SET_URL+uid,{
+        return axios.get(SET_URL+uid,{
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+    }
+    getTransactionById(id){
+        const token = localStorage.getItem('jwtToken');
+        return axios.get(VIEW_URL+id,{
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
@@ -27,7 +38,7 @@ class TransactionService{
     getFilter(start,finish){
         let param = "?start="+start+"&finish="+finish;
         const token = localStorage.getItem('jwtToken');
-        return axios.get(TRANASACTION_API_FILTER_URL+param,{
+        return axios.get(FILTER_URL+param,{
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
@@ -37,7 +48,7 @@ class TransactionService{
     getFilterUid(start,finish,uid){
         let param = "?start="+start+"&finish="+finish+"&uid="+uid;
         const token = localStorage.getItem('jwtToken');
-        return axios.get(TRANASACTION_API_FILTER_URL+param,{
+        return axios.get(FILTER_URL+param,{
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
@@ -52,7 +63,7 @@ class TransactionService{
             status: type
         });
         const token = localStorage.getItem('jwtToken');
-        axios.post(TRANASACTION_API_SET_URL, credentials, {
+        axios.post(SET_URL, credentials, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
@@ -67,12 +78,21 @@ class TransactionService{
             status: type
         });
         const token = localStorage.getItem('jwtToken');
-        axios.post(TRANASACTION_API_UPDATE_URL, credentials, {
+        axios.post(UPDATE_URL, credentials, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             }
         });
+    }
+    action(id,action){
+        const token = localStorage.getItem('jwtToken');
+        return axios.get(ACTION_URL+action+"/"+id,{
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
     }
 }
 

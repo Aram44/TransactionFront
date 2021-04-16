@@ -50,6 +50,12 @@ class ListTransactionComponent extends Component {
             });
         }
     }
+    action(id,action){
+        TransactionService.action(id,action).then((res) => {
+            console.log(res);
+            this.componentDidMount();
+        });
+    }
     render() {
         return (
             <div className="container text-center">
@@ -83,16 +89,18 @@ class ListTransactionComponent extends Component {
                                     {transaction.status === 'PROCESS' ? 
                                     this.state.role==='admin'? 
                                         <td>
-                                            <button onClick={() => this.onNavigateView(transaction.id)} className="btn btn-outline-primary">View</button>
-                                            <button type="submit" className="btn btn-outline-primary">Apply</button>
-                                            <button type="submit" className="btn btn-outline-primary">Refuse</button>
+                                            <a onClick={() => this.onNavigateView(transaction.id)} className="btn btn-outline-primary">View</a>
+                                            <a onClick={() => this.action(transaction.id,1)} type="submit" className="btn btn-outline-primary">Apply</a>
+                                            <a onClick={() => this.action(transaction.id,2)} type="submit" className="btn btn-outline-primary">Refuse</a>
                                         </td>:
                                         <td>
-                                            <button onClick={() => this.onNavigateView(transaction.id)} className="btn btn-outline-primary">View</button>
-                                            <button type="submit" className="btn btn-outline-primary">Cancel</button>
+                                            <a onClick={() => this.onNavigateView(transaction.id)} className="btn btn-outline-primary">View</a>
+                                            <a onClick={() => this.action(transaction.id,3)} type="submit" className="btn btn-outline-primary">Cancel</a>
                                         </td>
                                         :
-                                        <button onClick={() => this.onNavigateView(transaction.id)} className="btn btn-outline-primary">View</button>
+                                        <td>
+                                            <a onClick={() => this.onNavigateView(transaction.id)} className="btn btn-outline-primary">View</a>
+                                        </td>  
                                     }
                                 </tr>)
                             }

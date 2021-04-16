@@ -6,6 +6,7 @@ import ListUserComponent from './ListUserComponent';
 import {withRouter} from 'react-router-dom';
 import RegisterConponent from './RegisterConponent';
 import AddTransactionComponent from './AddTransactionComponent';
+import ViewTransactionComponent from './ViewTransactionComponent';
 
 class HomeComponent extends Component {
   constructor(props) {
@@ -63,6 +64,7 @@ class HomeComponent extends Component {
           <Route exact path="/register">
             <RegisterConponent />
           </Route>
+          <Route exact path="/view/:id" component={ViewTransactionComponent}/>
         </Switch>
       </div>
     </Router>
