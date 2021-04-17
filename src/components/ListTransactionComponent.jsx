@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import TransactionService from '../services/TransactionService';
 import { Link, withRouter } from "react-router-dom";
 import TextField from '@material-ui/core/TextField';
+import ReactPaginate from "react-paginate";
 
 class ListTransactionComponent extends Component {
     constructor(props){
@@ -12,7 +13,7 @@ class ListTransactionComponent extends Component {
         }
     }
     initialState = {
-        transactions: [],start:'2021-04-16', finish:'2021-04-16',role: localStorage.getItem('role'), id: localStorage.getItem('uid')
+        transactions: [],start:'2021-04-16', finish:'2021-04-16',role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0
     };
     gologin = () => {
         this.props.history.replace("/login");
@@ -29,6 +30,10 @@ class ListTransactionComponent extends Component {
         if(this.state.role === 'admin'){
             TransactionService.getAllTransactions().then((res) => {
                 this.setState({transactions: res.data.content});
+                this.setState({pageCount: res.data.totalPages});
+                console.log(res);
+                console.log(res.data.pageable.pageNumber+1);
+
             });
         }else{
             TransactionService.getAllTransactionById(this.state.id).then((res) => {
@@ -57,7 +62,11 @@ class ListTransactionComponent extends Component {
             this.componentDidMount();
         });
     }
+    handlePageClick({ selected: selectedPage }) {
+        console.log(selectedPage);
+    }
     render() {
+        const {pageCount,page} = this.state;
         return (
             <div className="container text-center">
                 <h2>Transaction List</h2>
@@ -107,6 +116,19 @@ class ListTransactionComponent extends Component {
                             }
                         </tbody>
                     </table>
+                </div>
+                <div className="w-100 d-flex justify-content-center">
+                    <ReactPaginate
+                        pageCount={pageCount}
+                        onPageChange={this.handlePageClick}
+                        containerClassName={"pagination"}
+                        pageClassName="page-item"
+                        pageLinkClassName="page-link"
+                        activeClassName="active"
+                        disabledClassName="disabled"
+                        previousLinkClassName="page-link"
+                        nextLinkClassName="page-link"
+                    />
                 </div>
             </div>
         );
