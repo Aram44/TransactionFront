@@ -33,6 +33,7 @@ class ListTransactionComponent extends Component {
         }else{
             TransactionService.getAllTransactionById(this.state.id).then((res) => {
                 this.setState({transactions: res.data.content});
+                console.log(res);
             });
         }
     }

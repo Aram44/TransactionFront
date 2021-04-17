@@ -51,6 +51,12 @@ class Register extends Component {
     resetRegisterForm = () => {
         this.setState(() => this.initialState);
     };
+    isEmail(val) {
+        let regEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if(!regEmail.test(val)){
+          return 'Invalid Email';
+        }
+    }
 
     render() {
         const {email,name, password, confirm, error} = this.state;
@@ -64,7 +70,7 @@ class Register extends Component {
                     <div>
                         <form action="/login" method="post">
                             <div className="form-group">
-                                <input className="form-control" required autoComplete="off" type="text" name="email" value={email} onChange={this.credentialChange}
+                                <input className="form-control" required autoComplete="off" type="email" name="email" value={email} onChange={this.credentialChange}
                                             placeholder="Enter Email Address"/>
                             </div>
                             <div className="form-group">
@@ -82,7 +88,7 @@ class Register extends Component {
                                  
                             </div>
                             <button className="btn btn-primary" size="sm" type="button" variant="success" onClick={this.saveUser}
-                                disabled={this.state.email.length === 0 || this.state.password.length < 6}>
+                                disabled={this.isEmail(this.state.email) || this.state.password.length < 6 || this.state.name.length <2}>
                                 Register
                             </button>
                             </form>
