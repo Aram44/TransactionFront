@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {withRouter} from 'react-router-dom';
-import {AppBar,Tabs,Tab,Typography,Box,Button,Snackbar} from '@material-ui/core';
+import {AppBar,Tabs,Tab,Typography,Box,Button} from '@material-ui/core';
 import PropTypes from 'prop-types';
 import AccountService from '../services/AccountService';
 import axios from 'axios';
@@ -47,7 +47,7 @@ class AddTransaction extends Component {
     }
 
     initialState = {
-        role:localStorage.getItem('role'),accounts: [],sender:1, receiver:1, balance: 1,value: 0,open: false, error:''
+        role:localStorage.getItem('role'),accounts: [],sender:1, receiver:1, balance: 1,value: 0,mes:'', error:''
     };
     componentDidMount(){
       let uid = localStorage.getItem('uid');
@@ -64,15 +64,6 @@ class AddTransaction extends Component {
             [event.target.name] : event.target.value
         });
     };
-    handleClick = () => {
-        this.setState({"open":true});
-    };
-    handleClose = (event, reason) => {
-        if (reason === 'clickaway') {
-          return;
-        }
-        this.setState({"open":false});
-      };
     handleChange = (event, newValue) => {
         this.setState({"value":newValue});
     };
@@ -93,11 +84,10 @@ class AddTransaction extends Component {
             }
         }).then(response => {
             let data = response.data;
-            this.setState({"error": data.message});
-            this.handleClick();
+            this.setState({"mes": data.message});
+            this.componentDidMount();
         }).catch(error => {
             this.setState({"error": "Wrong ID"});
-            this.handleClick();
         });
         if(this.state.role==='admin'){
           this.setState(() => this.initialState);
@@ -114,18 +104,19 @@ class AddTransaction extends Component {
       <select name="sender" value={this.state.sender} onChange={this.credentialChange} className="form-control w-100">
           {
             this.state.accounts.map(account =>
-            <option key={account.id} value={account.id}>{account.id}</option>)
+            <option key={account.id} value={account.id}>{account.id} : ({account.balance}$)</option>)
          }
       </select>
       )
     }
 
     render() {
-        const {role,sender,receiver,balance,value,open, error} = this.state;
+        const {role,sender,receiver,balance,value,mes, error} = this.state;
 
         return (
             <div className="container" style={{width: 510}}>
-    <Snackbar open={open} autoHideDuration={2000} onClose={this.handleClose} message={error}/>
+    {error && <div className="alert alert-danger">{error}</div>}
+    {mes && <div className="alert alert alert-success">{mes}</div>}
       <AppBar position="static">
         <Tabs value={value} onChange={this.handleChange} aria-label="simple tabs example">
           <Tab label="Withdrawal" {...a11yProps(0)} />

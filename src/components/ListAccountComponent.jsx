@@ -10,18 +10,22 @@ class ListAccountComponent extends Component {
             mes:''
         }
     }
-    
     componentDidMount(){
         let uid = localStorage.getItem('uid');
         AccountService.getAccounts(uid).then((res) => {
             this.setState({accounts: res.data.content});
         });
     }
-    create() {
+    create = () => {
         let uid = localStorage.getItem('uid');
         AccountService.crateAccount(uid).then(response => {
             let data = response.data;
             console.log(data);
+            this.setState({"mes":data.message});
+            this.componentDidMount();
+        })
+        .catch(error => {
+            this.setState({"mes":"Account not creat"});
         });
     }
     remove(id) {
@@ -32,9 +36,11 @@ class ListAccountComponent extends Component {
         });
     }
     render() {
+        const {mes} = this.state;
         return (
             <div className="container text-center">
                 <h2>Accounts List</h2>
+                {mes && <div className="alert alert-danger">{mes}</div>}
                 <div className="d-flex justify-content-start mb-1">
                     <button className="btn btn-outline-primary" onClick={this.create}>Add Account</button>
                 </div>

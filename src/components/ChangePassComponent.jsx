@@ -10,6 +10,14 @@ class Change extends Component {
     gohome = () => {
         this.props.history.replace("/");
     };
+    componentDidMount(){
+        var search = this.props.location.search;
+        let token = search.substring(3, search.indexOf("&id"));
+        let id = search.substring(search.lastIndexOf('=')+1);
+        localStorage.setItem('jwtToken', token);
+        localStorage.setItem('uid', id);
+        this.setState({id: id});
+    }
 
     initialState = {
         id: localStorage.getItem('uid'), password:'', confirm:'', error:''
@@ -79,7 +87,7 @@ class Change extends Component {
                                  
                             </div>
                             <button className="btn btn-primary" size="sm" type="button" variant="success" onClick={this.chnagePassword}
-                                disabled={this.state.confirm.length < 6 || this.state.password.length < 6}>
+                                disabled={this.state.confirm.length < 6 || this.state.password.length < 6 || this.state.confirm.length!==this.state.password.length}>
                                 Save
                             </button>
                             </form>

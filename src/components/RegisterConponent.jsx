@@ -7,9 +7,6 @@ class Register extends Component {
         super(props);
         this.state = this.initialState;
     }
-    goUsers = () => {
-        this.props.history.replace("/users");
-    };
 
     initialState = {
         email:'',name:'', password:'', confirm: '', error:''
@@ -35,9 +32,7 @@ class Register extends Component {
                     'Authorization': `Bearer ${token}`
                 }
                 }).then(response => {
-                    let data = response.data;
-                    console.log(data);
-                    this.goUsers();
+                    this.setState({"error":response.data.message});
                 })
                 .catch(error => {
                     this.resetRegisterForm();
@@ -88,7 +83,7 @@ class Register extends Component {
                                  
                             </div>
                             <button className="btn btn-primary" size="sm" type="button" variant="success" onClick={this.saveUser}
-                                disabled={this.isEmail(this.state.email) || this.state.password.length < 6 || this.state.name.length <2}>
+                                disabled={this.isEmail(this.state.email) || this.state.password.length < 6 || this.state.name.length <2 || this.state.password.length !== this.state.confirm.length}>
                                 Register
                             </button>
                             </form>

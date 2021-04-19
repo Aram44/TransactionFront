@@ -8,9 +8,9 @@ const VIEW_URL = "http://localhost:9090/api/v1/transaction/view/";
 const ACTION_URL = "http://localhost:9090/api/v1/transaction/";
 
 class TransactionService{
-    getAllTransactions(){
+    getAllTransactions(page){
         const token = localStorage.getItem('jwtToken');
-        return axios.get(BASE_URL, {
+        return axios.get(BASE_URL+"?page="+page, {
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`

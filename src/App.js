@@ -11,12 +11,12 @@ function App() {
       <Router>
         <Switch>
             <Route exact path="/login"component={LoginComponent}/>
+            <Route exact path="/verify"component={ChangePassComponent}/>
             <Route exact path="/" component={HomeComponent}/>
             <Route exact path="/changepass" component={ChangePassComponent}/>
         </Switch>
     </Router>
     </div>
-    
   );
 }
 

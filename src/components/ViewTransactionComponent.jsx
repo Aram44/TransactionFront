@@ -9,14 +9,18 @@ class View extends Component {
     }
 
     initialState = {
-        id: this.props.match.params.id,sender:0,receiver:0,balance:0,status:'',sendtime:'',type:''
+        id: this.props.match.params.id,role:localStorage.getItem('role'),sender:'',senderName:'',receiverName:'',senderEmail:'',receiverEmail:'',receiver:'',balance:'',status:'',sendtime:'',type:''
     };
 
     componentDidMount(){
         TransactionService.getTransactionById(this.state.id).then((res) => {
-            console.log(res.data);
+            console.log(res);
             this.setState({"sender":res.data.sender});
             this.setState({"receiver":res.data.receiver});
+            this.setState({"senderName":res.data.senderName});
+            this.setState({"receiverName":res.data.receiverName});
+            this.setState({"senderEmail":res.data.senderEmail});
+            this.setState({"receiverEmail":res.data.receiverEmail});
             this.setState({"balance":res.data.balance});
             this.setState({"status":res.data.status});
             this.setState({"sendtime":res.data.sendtime});
@@ -44,6 +48,18 @@ class View extends Component {
                                 <td>Sender Account</td>
                                 <td>{this.state.sender}</td>
                             </tr>
+                            {this.state.role==='admin'?
+                            <tr>
+                                <td>Sender Info</td>
+                                <td>{"Name: "+this.state.senderName+" Email: "+this.state.senderEmail}</td>
+                            </tr>
+                            :''}
+                            {this.state.role==='admin'?
+                            <tr>
+                                <td>Receiver Info</td>
+                                <td>{"Name: "+this.state.receiverName+" Email: "+this.state.receiverEmail}</td>
+                            </tr>
+                            :''}
                             <tr>
                                 <td>Receiver Account</td>
                                 <td>{this.state.receiver}</td>

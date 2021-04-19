@@ -1,13 +1,13 @@
 import axios from 'axios';
 
-const ACCOUNT_API_BASE_URL = "http://localhost:9090/api/v1/account/user/";
-const ACCOUNT_API_CREATE_URL = "http://localhost:9090/api/v1/account/create";
-const ACCOUNT_API_REMOVE_URL = "http://localhost:9090/api/v1/account/remove/";
+const BASE_URL = "http://localhost:9090/api/v1/account/user/";
+const CREATE_URL = "http://localhost:9090/api/v1/account/create";
+const REMOVE_URL = "http://localhost:9090/api/v1/account/remove/";
 
 class AccountService{
     getAccounts(uid){
         const token = localStorage.getItem('jwtToken');
-        return axios.get(ACCOUNT_API_BASE_URL+uid, {
+        return axios.get(BASE_URL+uid, {
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
@@ -19,7 +19,7 @@ class AccountService{
             uid: uid
         });
         const token = localStorage.getItem('jwtToken');
-        return axios.post(ACCOUNT_API_CREATE_URL, credentials,{
+        return axios.post(CREATE_URL, credentials,{
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
@@ -28,7 +28,7 @@ class AccountService{
     }
     removeAccount(id){
       const token = localStorage.getItem('jwtToken');
-      return axios.get(ACCOUNT_API_REMOVE_URL+id, {
+      return axios.get(REMOVE_URL+id, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
