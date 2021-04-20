@@ -9,7 +9,7 @@ class View extends Component {
     }
 
     initialState = {
-        id: this.props.match.params.id,role:localStorage.getItem('role'),sender:'',senderName:'',receiverName:'',senderEmail:'',receiverEmail:'',receiver:'',balance:'',status:'',sendtime:'',type:''
+        id: this.props.match.params.id,role:localStorage.getItem('role'),sender:'',senderName:'',receiverName:'',senderEmail:'',receiverEmail:'',receiver:'',balance:'',fee:'',status:'',sendtime:'',type:''
     };
 
     componentDidMount(){
@@ -22,6 +22,7 @@ class View extends Component {
             this.setState({"senderEmail":res.data.senderEmail});
             this.setState({"receiverEmail":res.data.receiverEmail});
             this.setState({"balance":res.data.balance});
+            this.setState({"fee":res.data.fee});
             this.setState({"status":res.data.status});
             this.setState({"sendtime":res.data.sendtime});
             this.setState({"type":res.data.type});
@@ -60,13 +61,19 @@ class View extends Component {
                                 <td>{"Name: "+this.state.receiverName+" Email: "+this.state.receiverEmail}</td>
                             </tr>
                             :''}
+                            {this.state.type!=='WITHDRAWAL' || this.state.type!=='DEPOSIT'?
                             <tr>
                                 <td>Receiver Account</td>
                                 <td>{this.state.receiver}</td>
                             </tr>
+                            :''}
                             <tr>
                                 <td>Balance</td>
                                 <td>{this.state.balance}</td>
+                            </tr>
+                            <tr>
+                                <td>Fee</td>
+                                <td>{this.state.fee}</td>
                             </tr>
                             <tr>
                                 <td>Status</td>

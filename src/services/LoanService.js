@@ -1,14 +1,14 @@
 import axios from 'axios';
 
-const BASE_URL = "http://localhost:9090/api/v1/alltransactions/";
-const SET_URL = "http://localhost:9090/api/v1/transaction/";
-const FILTER_URL = "http://localhost:9090/api/v1/filter/";
-const UPDATE_URL = "http://localhost:9090/api/v1/transaction/update/";
-const VIEW_URL = "http://localhost:9090/api/v1/transaction/view/";
-const ACTION_URL = "http://localhost:9090/api/v1/transaction/";
+const BASE_URL = "http://localhost:9090/api/v1/loan/allloans/";
+const SET_URL = "http://localhost:9090/api/v1/loan/loan/";
+const FILTER_URL = "http://localhost:9090/api/v1/loan/filter/";
+const UPDATE_URL = "http://localhost:9090/api/v1/loan/update/";
+const VIEW_URL = "http://localhost:9090/api/v1/loan/view/";
+const ACTION_URL = "http://localhost:9090/api/v1/loan/loan/";
 
-class TransactionService{
-    getAllTransactions(page){
+class LoanService{
+    getAllLoans(page){
         const token = localStorage.getItem('jwtToken');
         return axios.get(BASE_URL+"?page="+page, {
             headers: {
@@ -17,7 +17,7 @@ class TransactionService{
             }
           });
     }
-    getAllTransactionById(uid){
+    getAllLoanById(uid){
         const token = localStorage.getItem('jwtToken');
         return axios.get(SET_URL+uid,{
             headers: {
@@ -26,7 +26,7 @@ class TransactionService{
             }
           });
     }
-    getTransactionById(id){
+    getLoanById(id){
         const token = localStorage.getItem('jwtToken');
         return axios.get(VIEW_URL+id,{
             headers: {
@@ -55,7 +55,7 @@ class TransactionService{
             }
           });
     }
-    setTransactions(sid,rid,bal,type){
+    setLoans(sid,rid,bal,type){
         const credentials = JSON.stringify({
             sender: sid,
             receiver: rid,
@@ -70,7 +70,7 @@ class TransactionService{
             }
         });
     }
-    updateTransactions(sid,rid,bal,type){
+    updateLoans(sid,rid,bal,type){
         const credentials = JSON.stringify({
             sender: sid,
             receiver: rid,
@@ -96,4 +96,4 @@ class TransactionService{
     }
 }
 
-export default new TransactionService()
+export default new LoanService()

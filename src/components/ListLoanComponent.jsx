@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import TransactionService from '../services/TransactionService';
+import LoanService from '../services/LoanService';
 import { Link, withRouter } from "react-router-dom";
 import TextField from '@material-ui/core/TextField';
 import Accordion from '@material-ui/core/Accordion';
@@ -13,7 +13,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
-class ListTransactionComponent extends Component {
+class ListLoanComponent extends Component {
     constructor(props){
         super(props);
         this.state = this.initialState;
@@ -22,13 +22,13 @@ class ListTransactionComponent extends Component {
         }
     }
     initialState = {
-        transactions: [],start:'', finish:'', status: 4,role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0,onFilter:false
+        loans: [],start:'', finish:'', status: 4, role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0,onFilter:false
     };
     gologin = () => {
         this.props.history.replace("/login");
     };
     onNavigateView(id){
-        this.props.history.push("/view/"+id);
+        this.props.history.push("/loan/"+id);
     }
     credentialChange = event => {
         this.setState({
@@ -37,15 +37,15 @@ class ListTransactionComponent extends Component {
     };
     componentDidMount(){
         if(this.state.role === 'admin'){
-            TransactionService.getAllTransactions(this.state.page).then((res) => {
-                this.setState({transactions: res.data.content});
+            LoanService.getAllLoans(this.state.page).then((res) => {
+                this.setState({loans: res.data.content});
                 this.setState({pageCount: res.data.totalPages});
                 console.log(res);
                 console.log(res.data.pageable.pageNumber+1);
             });
         }else{
-            TransactionService.getAllTransactionById(this.state.id).then((res) => {
-                this.setState({transactions: res.data.content});
+            LoanService.getAllLoanById(this.state.id).then((res) => {
+                this.setState({loans: res.data.content});
                 console.log(res);
             });
         }
@@ -53,22 +53,22 @@ class ListTransactionComponent extends Component {
     doFilter(start,finish,status){
             console.log(start);
         if(this.state.role === 'admin'){
-            TransactionService.getFilter(start,finish,status,this.state.page).then((res) => {
+            LoanService.getFilter(start,finish,status,this.state.page).then((res) => {
                 console.log(res);
-                this.setState({transactions: res.data.content});
+                this.setState({loans: res.data.content});
                 this.setState({pageCount: res.data.totalPages});
                 this.setState({onFilter: true});
             });
         }else{
             let uid = localStorage.getItem('uid');
-            TransactionService.getFilterUid(start,finish,uid).then((res) => {
+            LoanService.getFilterUid(start,finish,uid).then((res) => {
                 console.log(res);
-                this.setState({transactions: res.data.content});
+                this.setState({loans: res.data.content});
             });
         }
     }
     action(id,action){
-        TransactionService.action(id,action).then((res) => {
+        LoanService.action(id,action).then((res) => {
             console.log(res);
             this.componentDidMount();
         });
@@ -76,15 +76,15 @@ class ListTransactionComponent extends Component {
     handlePageClick= (data) => {
         this.setState({page: data.selected});
         if(this.state.onFiler){
-            TransactionService.getFilter(this.state.start,this.state.finish,this.state.status,data.selected).then((res) => {
+            LoanService.getFilter(this.state.start,this.state.finish,this.state.status,data.selected).then((res) => {
                 console.log(res);
-                this.setState({transactions: res.data.content});
+                this.setState({loans: res.data.content});
                 this.setState({pageCount: res.data.totalPages});
                 this.setState({onFilter: true});
             });
         }else{
-            TransactionService.getAllTransactions(data.selected).then((res) => {
-                this.setState({transactions: res.data.content});
+            LoanService.getAllTransactions(data.selected).then((res) => {
+                this.setState({loans: res.data.content});
                 this.setState({pageCount: res.data.totalPages});
                 console.log(res);
                 console.log(res.data.pageable.pageNumber+1);
@@ -93,13 +93,13 @@ class ListTransactionComponent extends Component {
         
       }
     render() {
-        const {pageCount} = this.state;
+        const {pageCount,role} = this.state;
         return (
             <div className="container text-center">
-                <h2>Transaction List</h2>
+                <h2>Loan List</h2>
                 <Accordion>
         <AccordionSummary expandIcon={<FilterListIcon />} aria-controls="panel1c-content" id="panel1c-header">
-          <div><Link to={"/transaction"} className="btn btn-outline-primary" style={{width:160}}>Add Transaction</Link></div>
+          {role==='admin'?'':<div><Link to={"/createloan"} className="btn btn-outline-primary" style={{width:160}}>Add Loan</Link></div>}
           <div className="w-100 d-flex flex-row-reverse mt-2">Filters</div>
         </AccordionSummary>
         <AccordionDetails>
@@ -136,33 +136,43 @@ class ListTransactionComponent extends Component {
                     <table className="table table-striped table-bordered">
                         <thead className="thead-dark">
                             <tr>
-                                <th>Transaction ID</th>
+                                <th>Loan ID</th>
+                                <th>Account ID</th>
+                                <th>Amount</th>
+                                <th>Interest</th>
+                                <th>Monthly</th>
+                                <th>Months</th>
                                 <th>Status</th>
-                                <th>Time</th>
+                                <th>Request Time</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {
-                                this.state.transactions.map(transaction =>
-                                <tr key={transaction.id}>
-                                    <td>{transaction.id}</td>
-                                    <td>{transaction.status}</td>
-                                    <td>{transaction.sendtime}</td>
-                                    {transaction.status === 'PROCESS' ? 
+                                this.state.loans.map(loan =>
+                                <tr key={loan.id}>
+                                    <td>{loan.id}</td>
+                                    <td>{loan.aid}</td>
+                                    <td>{loan.amount}</td>
+                                    <td>{loan.interest}</td>
+                                    <td>{loan.monthly}</td>
+                                    <td>{loan.months}</td>
+                                    <td>{loan.status}</td>
+                                    <td>{loan.requesttime}</td>
+                                    {loan.status === 'PROCESS' ? 
                                     this.state.role==='admin'? 
                                         <td>
-                                            <a onClick={() => this.onNavigateView(transaction.id)} className="btn btn-outline-primary">View</a>
-                                            <a onClick={() => this.action(transaction.id,1)} type="submit" className="btn btn-outline-primary">Apply</a>
-                                            <a onClick={() => this.action(transaction.id,2)} type="submit" className="btn btn-outline-primary">Refuse</a>
+                                            <a onClick={() => this.onNavigateView(loan.id)} className="btn btn-outline-primary">View</a>
+                                            <a onClick={() => this.action(loan.id,1)} type="submit" className="btn btn-outline-primary">Approve</a>
+                                            <a onClick={() => this.action(loan.id,2)} type="submit" className="btn btn-outline-primary">Reject</a>
                                         </td>:
                                         <td>
-                                            <a onClick={() => this.onNavigateView(transaction.id)} className="btn btn-outline-primary">View</a>
-                                            <a onClick={() => this.action(transaction.id,3)} type="submit" className="btn btn-outline-primary">Cancel</a>
+                                            <a onClick={() => this.onNavigateView(loan.id)} className="btn btn-outline-primary">View</a>
+                                            <a onClick={() => this.action(loan.id,3)} type="submit" className="btn btn-outline-primary">Cancel</a>
                                         </td>
                                         :
                                         <td>
-                                            <a onClick={() => this.onNavigateView(transaction.id)} className="btn btn-outline-primary">View</a>
+                                            <a onClick={() => this.onNavigateView(loan.id)} className="btn btn-outline-primary">View</a>
                                         </td>  
                                     }
                                 </tr>)
@@ -190,4 +200,4 @@ class ListTransactionComponent extends Component {
     }
 }
 
-export default withRouter(ListTransactionComponent);
+export default withRouter(ListLoanComponent);

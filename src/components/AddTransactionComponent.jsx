@@ -47,7 +47,7 @@ class AddTransaction extends Component {
     }
 
     initialState = {
-        role:localStorage.getItem('role'),accounts: [],sender:1, receiver:1, balance: 1,value: 0,mes:'', error:''
+        role:localStorage.getItem('role'),accounts: [],sender:1, receiver:1, balance: 1,value: 0, error:''
     };
     componentDidMount(){
       let uid = localStorage.getItem('uid');
@@ -58,12 +58,6 @@ class AddTransaction extends Component {
           }
       });
   }
-
-    credentialChange = event => {
-        this.setState({
-            [event.target.name] : event.target.value
-        });
-    };
     handleChange = (event, newValue) => {
         this.setState({"value":newValue});
     };
@@ -84,7 +78,7 @@ class AddTransaction extends Component {
             }
         }).then(response => {
             let data = response.data;
-            this.setState({"mes": data.message});
+            this.setState({"error": data.message});
             this.componentDidMount();
         }).catch(error => {
             this.setState({"error": "Wrong ID"});
@@ -111,12 +105,11 @@ class AddTransaction extends Component {
     }
 
     render() {
-        const {role,sender,receiver,balance,value,mes, error} = this.state;
+        const {role,sender,receiver,balance,value, error} = this.state;
 
         return (
             <div className="container" style={{width: 510}}>
     {error && <div className="alert alert-danger">{error}</div>}
-    {mes && <div className="alert alert alert-success">{mes}</div>}
       <AppBar position="static">
         <Tabs value={value} onChange={this.handleChange} aria-label="simple tabs example">
           <Tab label="Withdrawal" {...a11yProps(0)} />
@@ -125,37 +118,37 @@ class AddTransaction extends Component {
         </Tabs>
       </AppBar>
       <TabPanel value={value} index={2}>
-      <form noValidate autoComplete="off" className="container d-flex flex-column align-items-center">
-       <label for="deposit" className="text-left w-100">Accont ID</label>
+      <div noValidate autoComplete="off" className="container d-flex flex-column align-items-center">
+       <label htmlFor="deposit" className="text-left w-100">Accont ID</label>
         <input type="number" className="form-control w-100" min="1" id="deposit" label="Account ID" name="sender" value={sender} placeholder="Account ID" onChange={this.credentialChange}/>
-        <label for="balanceDeposit"  className="text-left w-100 mt-2">Balance</label>
+        <label htmlFor="balanceDeposit"  className="text-left w-100 mt-2">Balance</label>
         <input type="number" className="form-control w-100" min="1" id="balanceDeposit" name="balance" label="Balance" value={balance} placeholder="Balance" onChange={this.credentialChange}/>
         <Button variant="contained" color="primary" className="mt-2" onClick={() => this.createTransaction(0)}>Deposit</Button>
-      </form>
+      </div>
       </TabPanel>
       <TabPanel value={value} index={0}>
-      <form noValidate autoComplete="off" className="container d-flex flex-column align-items-center">
-       <label for="deposit" className="text-left w-100">Accont ID</label>
+      <div noValidate autoComplete="off" className="container d-flex flex-column align-items-center">
+       <label htmlFor="deposit" className="text-left w-100">Accont ID</label>
        {role==='admin'?
         <input type="number" className="form-control w-100" min="1" id="deposit" label="Account ID" name="sender" value={sender} placeholder="Account ID" onChange={this.credentialChange}/>
         :this.createSelect()}
-        <label for="balanceDeposit"  className="text-left w-100 mt-2">Balance</label>
+        <label htmlFor="balanceDeposit"  className="text-left w-100 mt-2">Balance</label>
         <input type="number" className="form-control w-100" min="1" id="balanceDeposit" label="Balance" name="balance" value={balance} placeholder="Balance" onChange={this.credentialChange}/>
         <Button variant="contained" color="primary" className="mt-2" onClick={() => this.createTransaction(1)}>Withdrawal</Button>
-      </form>
+      </div>
       </TabPanel>
       <TabPanel value={value} index={1}>
-      <form noValidate autoComplete="off" className="container d-flex flex-column align-items-center">
-       <label for="deposit" className="text-left w-100">Sender Accont ID</label>
+      <div noValidate autoComplete="off" className="container d-flex flex-column align-items-center">
+       <label htmlFor="deposit" className="text-left w-100">Sender Accont ID</label>
        {role==='admin'?
         <input type="number" className="form-control w-100" min="1" id="deposit" label="Account ID" name="sender" value={sender} placeholder="Sender Account ID" onChange={this.credentialChange}/>
         :this.createSelect()}
-       <label for="deposit" className="text-left w-100 mt-2">Receiver Accont ID</label>
+       <label htmlFor="deposit" className="text-left w-100 mt-2">Receiver Accont ID</label>
         <input type="number" className="form-control w-100" min="1" id="deposit" label="Account ID" name="receiver" value={receiver} placeholder="Receiver Account ID" onChange={this.credentialChange}/>
-        <label for="balanceDeposit"  className="text-left w-100 mt-2 ">Balance</label>
+        <label htmlFor="balanceDeposit"  className="text-left w-100 mt-2 ">Balance</label>
         <input type="number" className="form-control w-100" min="1" id="balanceDeposit" label="Balance" name="balance" value={balance} placeholder="Balance" onChange={this.credentialChange}/>
             <Button variant="contained" color="primary" className="mt-2" onClick={() => this.createTransaction(2)}>Save</Button>
-      </form>
+      </div>
       </TabPanel>
     </div>
         );
