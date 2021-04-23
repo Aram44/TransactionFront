@@ -24,11 +24,14 @@ class ListLoanComponent extends Component {
     initialState = {
         loans: [],start:'', finish:'', status: 4, role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0,onFilter:false
     };
-    gologin = () => {
-        this.props.history.replace("/login");
-    };
     onNavigateView(id){
         this.props.history.push("/loan/"+id);
+    }
+    onNavigateViewPay(id){
+        this.props.history.push("/transaction/"+id);
+    }
+    onNavigateViewEdit(id){
+        this.props.history.push("/loan/edit/"+id);
     }
     credentialChange = event => {
         this.setState({
@@ -44,7 +47,8 @@ class ListLoanComponent extends Component {
                 console.log(res.data.pageable.pageNumber+1);
             });
         }else{
-            LoanService.getAllLoanById(this.state.id).then((res) => {
+            let uid = localStorage.getItem('uid');
+            LoanService.getAllLoanById(uid).then((res) => {
                 this.setState({loans: res.data.content});
                 console.log(res);
             });
@@ -92,6 +96,53 @@ class ListLoanComponent extends Component {
         }
         
       }
+    showLoanButtons(role, loan){
+        if(role==="admin"){
+            if(loan.status==="PROCESS"){
+                return(
+                <td>
+                    <a onClick={() => this.action(loan.id,1)} type='submit' className='btn btn-outline-primary'>Approve</a>
+                    <a onClick={() => this.action(loan.id,2)} type="submit" className="btn btn-outline-primary">Reject</a>
+                    <a onClick={() => this.onNavigateViewEdit(loan.id)} type="submit" className="btn btn-outline-primary">Edit</a>
+                </td>
+                )
+            }else if(loan.status==="CANCELED"){
+                return(
+                    <td>CANCELED</td>
+                    )
+            }else{
+                return(
+                    <td>
+                        <a onClick={() => this.onNavigateView(loan.id)} className="btn btn-outline-primary">View</a>
+                    </td>
+                )
+            }
+        }else{
+            if(loan.status==="EDITED"){
+                return(
+                <td>
+                    <a onClick={() => this.action(loan.id,1)} type='submit' className='btn btn-outline-primary'>Approve</a>
+                    <a onClick={() => this.action(loan.id,2)} type="submit" className="btn btn-outline-primary">Reject</a>
+                </td>
+                )
+            }else if(loan.status==="PROCESS"){
+                return(
+                <td>
+                    <a onClick={() => this.action(loan.id,3)} type="submit" className="btn btn-outline-primary">Cancel</a>
+                </td>)
+            }else if(loan.status==="CANCELED"){
+                return(
+                    <td>CANCELED</td>
+                    )
+            }else{
+                return(
+                <td>
+                    <a onClick={() => this.onNavigateView(loan.id)} className="btn btn-outline-primary">View</a>
+                    <a onClick={() => this.onNavigateViewPay(loan.id)} type="submit" className="btn btn-outline-primary">Pay</a>
+                </td>)
+            }
+        }
+    }
     render() {
         const {pageCount,role} = this.state;
         return (
@@ -111,13 +162,7 @@ class ListLoanComponent extends Component {
                         className="form-control ml-1" InputLabelProps={{shrink: true,}}/>
                         <FormControl style={{with:200}} className="ml-1 w-100">
                         <InputLabel id="demo-simple-select-label">Status</InputLabel>
-                        <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={this.state.status}
-                        onChange={this.credentialChange}
-                        name="status"
-                        >
+                        <Select labelId="demo-simple-select-label" id="demo-simple-select" value={this.state.status} onChange={this.credentialChange} name="status">
                         <MenuItem value={4}>All</MenuItem>
                         <MenuItem value={0}>Process</MenuItem>
                         <MenuItem value={1}>Done</MenuItem>
@@ -137,7 +182,6 @@ class ListLoanComponent extends Component {
                         <thead className="thead-dark">
                             <tr>
                                 <th>Loan ID</th>
-                                <th>Account ID</th>
                                 <th>Amount</th>
                                 <th>Interest</th>
                                 <th>Monthly</th>
@@ -152,29 +196,13 @@ class ListLoanComponent extends Component {
                                 this.state.loans.map(loan =>
                                 <tr key={loan.id}>
                                     <td>{loan.id}</td>
-                                    <td>{loan.aid}</td>
                                     <td>{loan.amount}</td>
                                     <td>{loan.interest}</td>
                                     <td>{loan.monthly}</td>
                                     <td>{loan.months}</td>
                                     <td>{loan.status}</td>
                                     <td>{loan.requesttime}</td>
-                                    {loan.status === 'PROCESS' ? 
-                                    this.state.role==='admin'? 
-                                        <td>
-                                            <a onClick={() => this.onNavigateView(loan.id)} className="btn btn-outline-primary">View</a>
-                                            <a onClick={() => this.action(loan.id,1)} type="submit" className="btn btn-outline-primary">Approve</a>
-                                            <a onClick={() => this.action(loan.id,2)} type="submit" className="btn btn-outline-primary">Reject</a>
-                                        </td>:
-                                        <td>
-                                            <a onClick={() => this.onNavigateView(loan.id)} className="btn btn-outline-primary">View</a>
-                                            <a onClick={() => this.action(loan.id,3)} type="submit" className="btn btn-outline-primary">Cancel</a>
-                                        </td>
-                                        :
-                                        <td>
-                                            <a onClick={() => this.onNavigateView(loan.id)} className="btn btn-outline-primary">View</a>
-                                        </td>  
-                                    }
+                                    {this.showLoanButtons(this.state.role,loan)}
                                 </tr>)
                             }
                         </tbody>

@@ -10,6 +10,7 @@ import ViewTransactionComponent from './ViewTransactionComponent';
 import ViewLoanComponent from './ViewLoanComponent';
 import ListLoanComponent from './ListLoanComponent';
 import AddLoanComponent from './AddLoanComponent';
+import EditLoanComponent from './EditLoanComponent';
 
 class HomeComponent extends Component {
   constructor(props) {
@@ -62,6 +63,7 @@ class HomeComponent extends Component {
           <Route exact path="/transaction">
             <AddTransactionComponent />
           </Route>
+          <Route exact path="/transaction/:id" component={AddTransactionComponent}/>
           <Route exact path="/createloan">
             <AddLoanComponent />
           </Route>
@@ -76,6 +78,7 @@ class HomeComponent extends Component {
           </Route>
           <Route exact path="/view/:id" component={ViewTransactionComponent}/>
           <Route exact path="/loan/:id" component={ViewLoanComponent}/>
+          <Route exact path="/loan/edit/:id" component={EditLoanComponent}/>
         </Switch>
       </div>
     </Router>

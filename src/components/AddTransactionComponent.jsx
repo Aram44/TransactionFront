@@ -3,6 +3,7 @@ import {withRouter} from 'react-router-dom';
 import {AppBar,Tabs,Tab,Typography,Box,Button} from '@material-ui/core';
 import PropTypes from 'prop-types';
 import AccountService from '../services/AccountService';
+import LoanService from '../services/LoanService';
 import axios from 'axios';
 
 
@@ -18,7 +19,7 @@ function TabPanel(props) {
         {...other}
       >
         {value === index && (
-          <Box p={3}>
+          <Box p={4}>
             <Typography>{children}</Typography>
           </Box>
         )}
@@ -47,7 +48,7 @@ class AddTransaction extends Component {
     }
 
     initialState = {
-        role:localStorage.getItem('role'),accounts: [],sender:1, receiver:1, balance: 1,value: 0, error:''
+        role:localStorage.getItem('role'),accounts: [],loans: [],sender:1, receiver:1, balance: 1,value: 0,month:1, error:'', message: '',id: this.props.match.params.id
     };
     componentDidMount(){
       let uid = localStorage.getItem('uid');
@@ -57,17 +58,33 @@ class AddTransaction extends Component {
             this.setState({sender: res.data.content[0].id});
           }
       });
+      LoanService.getAllLoanById(uid).then((res) => {
+        this.setState({loans: res.data.content});
+        if(this.state.role==='user' && !this.state.id){
+          this.setState({receiver: res.data.content[0].id});
+        }
+    });
+      if(this.state.id){
+        this.setState({receiver: this.state.id});
+        console.log(this.state.receiver);
+        this.setState({"value":2});
+      }
   }
     handleChange = (event, newValue) => {
         this.setState({"value":newValue});
     };
 
     createTransaction = (type) => {
+      console.log(this.state.sender);
+      console.log(this.state.receiver);
+      console.log(this.state.balance);
+      console.log(this.state.month);
         const credentials = JSON.stringify({
             sender: this.state.sender,
             receiver: this.state.receiver,
             balance: this.state.balance,
-            status: 0,
+            status: 1,
+            month: this.state.month,
             type: type
         });
         const token = localStorage.getItem('jwtToken');
@@ -78,10 +95,10 @@ class AddTransaction extends Component {
             }
         }).then(response => {
             let data = response.data;
-            this.setState({"error": data.message});
+            this.setState({"message": data.message});
             this.componentDidMount();
         }).catch(error => {
-            this.setState({"error": "Wrong ID"});
+            this.setState({"error": "Data Error"});
         });
         if(this.state.role==='admin'){
           this.setState(() => this.initialState);
@@ -104,28 +121,31 @@ class AddTransaction extends Component {
       )
     }
 
+    createSelectLoan(){
+      return(
+      <select name="receiver" value={this.state.receiver} onChange={this.credentialChange} className="form-control w-100">
+          {
+            this.state.loans.map(loan =>
+            <option key={loan.id} value={loan.id}>{loan.name} : (id: {loan.id})</option>)
+         }
+      </select>
+      )
+    }
     render() {
-        const {role,sender,receiver,balance,value, error} = this.state;
+        const {role,sender,receiver,balance,value, error,month,message} = this.state;
 
         return (
-            <div className="container" style={{width: 510}}>
+            <div className="container" style={{width: 670}}>
+            {message && <div className="alert alert-success">{message}</div>}
     {error && <div className="alert alert-danger">{error}</div>}
       <AppBar position="static">
         <Tabs value={value} onChange={this.handleChange} aria-label="simple tabs example">
           <Tab label="Withdrawal" {...a11yProps(0)} />
           <Tab label="Internal" {...a11yProps(1)} />
-          {role==='admin'?<Tab label="Deposit" {...a11yProps(2)} />:''}
+          <Tab label="Loan" {...a11yProps(2)} />
+          {role==='admin'?<Tab label="Deposit" {...a11yProps(3)} />:''}
         </Tabs>
       </AppBar>
-      <TabPanel value={value} index={2}>
-      <div noValidate autoComplete="off" className="container d-flex flex-column align-items-center">
-       <label htmlFor="deposit" className="text-left w-100">Accont ID</label>
-        <input type="number" className="form-control w-100" min="1" id="deposit" label="Account ID" name="sender" value={sender} placeholder="Account ID" onChange={this.credentialChange}/>
-        <label htmlFor="balanceDeposit"  className="text-left w-100 mt-2">Balance</label>
-        <input type="number" className="form-control w-100" min="1" id="balanceDeposit" name="balance" label="Balance" value={balance} placeholder="Balance" onChange={this.credentialChange}/>
-        <Button variant="contained" color="primary" className="mt-2" onClick={() => this.createTransaction(0)}>Deposit</Button>
-      </div>
-      </TabPanel>
       <TabPanel value={value} index={0}>
       <div noValidate autoComplete="off" className="container d-flex flex-column align-items-center">
        <label htmlFor="deposit" className="text-left w-100">Accont ID</label>
@@ -148,6 +168,32 @@ class AddTransaction extends Component {
         <label htmlFor="balanceDeposit"  className="text-left w-100 mt-2 ">Balance</label>
         <input type="number" className="form-control w-100" min="1" id="balanceDeposit" label="Balance" name="balance" value={balance} placeholder="Balance" onChange={this.credentialChange}/>
             <Button variant="contained" color="primary" className="mt-2" onClick={() => this.createTransaction(2)}>Save</Button>
+      </div>
+      </TabPanel>
+      <TabPanel value={value} index={2}>
+      <div noValidate autoComplete="off" className="container d-flex flex-column align-items-center">
+        <label htmlFor="deposit" className="text-left w-100">Accont ID</label>
+       {role==='admin'?
+        <input type="number" className="form-control w-100" min="1" id="deposit" label="Account ID" name="sender" value={sender} placeholder="Sender Account ID" onChange={this.credentialChange}/>
+        :this.createSelect()}
+         <label htmlFor="loan" className="text-left w-100">Loan ID</label>
+       {role==='admin'?
+        <input type="number" className="form-control w-100" min="1" id="loan" label="Account ID" name="receiver" value={receiver} placeholder="Loan ID" onChange={this.credentialChange}/>
+        :this.createSelectLoan()}
+       <label htmlFor="month" className="text-left w-100 mt-2">Month</label>
+        <input type="number" className="form-control w-100" min="1" id="month" label="Account ID" name="month" value={month} placeholder="Month" onChange={this.credentialChange}/>
+        <label htmlFor="balanceDeposit"  className="text-left w-100 mt-2 ">Balance</label>
+        <input type="number" className="form-control w-100" min="1" id="balanceDeposit" label="Balance" name="balance" value={balance} placeholder="Balance" onChange={this.credentialChange}/>
+            <Button variant="contained" color="primary" className="mt-2" onClick={() => this.createTransaction(3)}>Save</Button>
+      </div>
+      </TabPanel>
+      <TabPanel value={value} index={3}>
+      <div noValidate autoComplete="off" className="container d-flex flex-column align-items-center">
+       <label htmlFor="deposit" className="text-left w-100">Accont ID</label>
+        <input type="number" className="form-control w-100" min="1" id="deposit" label="Account ID" name="sender" value={sender} placeholder="Account ID" onChange={this.credentialChange}/>
+        <label htmlFor="balanceDeposit"  className="text-left w-100 mt-2">Balance</label>
+        <input type="number" className="form-control w-100" min="1" id="balanceDeposit" name="balance" label="Balance" value={balance} placeholder="Balance" onChange={this.credentialChange}/>
+        <Button variant="contained" color="primary" className="mt-2" onClick={() => this.createTransaction(0)}>Deposit</Button>
       </div>
       </TabPanel>
     </div>

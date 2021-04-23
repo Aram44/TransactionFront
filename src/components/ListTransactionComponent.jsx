@@ -10,19 +10,21 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import ReactPaginate from "react-paginate";
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import FormControl from '@material-ui/core/FormControl';
+import Checkbox from '@material-ui/core/Checkbox';
 
 class ListTransactionComponent extends Component {
     constructor(props){
         super(props);
         this.state = this.initialState;
+        this.referance = React.createRef()
         if(localStorage.getItem('jwtToken') === null){
             this.gologin();
         }
     }
     initialState = {
-        transactions: [],start:'', finish:'', status: 4,role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0,onFilter:false
+        transactions: [], idsArray: [],start:'', finish:'', status: 4,role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0,onFilter:false
     };
     gologin = () => {
         this.props.history.replace("/login");
@@ -90,8 +92,23 @@ class ListTransactionComponent extends Component {
                 console.log(res.data.pageable.pageNumber+1);
             });
         }
-        
-      }
+        window.scrollTo(0, 0);
+    }
+    selectAll = (check) => {
+        if(check){
+            this.setState({checked: false});
+        }else{
+            this.setState({checked: true});
+        } 
+    }
+    handleCheckboxChange = event => {
+        let checkArray = [...this.state.idsArray, event.target.id];
+        if (this.state.idsArray.includes(event.target.id)) {
+          checkArray = checkArray.filter(id => id !== event.target.id);
+        }
+        this.setState({idsArray: checkArray});
+        console.log(checkArray);
+      };
     render() {
         const {pageCount} = this.state;
         return (
@@ -111,13 +128,7 @@ class ListTransactionComponent extends Component {
                         className="form-control ml-1" InputLabelProps={{shrink: true,}}/>
                         <FormControl style={{with:200}} className="ml-1 w-100">
                         <InputLabel id="demo-simple-select-label">Status</InputLabel>
-                        <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={this.state.status}
-                        onChange={this.credentialChange}
-                        name="status"
-                        >
+                        <Select labelId="demo-simple-select-label" id="demo-simple-select" value={this.state.status} onChange={this.credentialChange} name="status">
                         <MenuItem value={4}>All</MenuItem>
                         <MenuItem value={0}>Process</MenuItem>
                         <MenuItem value={1}>Done</MenuItem>
@@ -136,6 +147,7 @@ class ListTransactionComponent extends Component {
                     <table className="table table-striped table-bordered">
                         <thead className="thead-dark">
                             <tr>
+                                <th>Select</th>
                                 <th>Transaction ID</th>
                                 <th>Status</th>
                                 <th>Time</th>
@@ -146,6 +158,7 @@ class ListTransactionComponent extends Component {
                             {
                                 this.state.transactions.map(transaction =>
                                 <tr key={transaction.id}>
+                                    <td><Checkbox id={transaction.id} name="checkedG" onClick={this.handleCheckboxChange}/></td>
                                     <td>{transaction.id}</td>
                                     <td>{transaction.status}</td>
                                     <td>{transaction.sendtime}</td>

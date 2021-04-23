@@ -14,9 +14,10 @@ class AccountService{
             }
           });
     }
-    crateAccount(uid){
+    crateAccount(uid,currency){
         const credentials = JSON.stringify({
-            uid: uid
+            uid: uid,
+            currency: currency
         });
         const token = localStorage.getItem('jwtToken');
         return axios.post(CREATE_URL, credentials,{
