@@ -48,25 +48,34 @@ class AddTransaction extends Component {
     }
 
     initialState = {
-        role:localStorage.getItem('role'),accounts: [],loans: [],sender:1, receiver:1, balance: 1,value: 0,month:1, error:'', message: '',id: this.props.match.params.id
+        role:localStorage.getItem('role'),accounts: [],loans: [],sender:1, receiver:1, balance: 1,value: 0,month:1, error:'', message: '',id: this.props.match.params.id,loanCurrency: 'USD'
     };
     componentDidMount(){
       let uid = localStorage.getItem('uid');
+      LoanService.getAllLoanById(uid).then((res) => {
+        this.setState({loans: res.data.content});
+        if(this.state.role==='user' && !this.state.id){
+          this.setState({receiver: res.data.content[0].id});
+          if(res.data.content[0].currency === 0){
+            this.setState({loanCurrency: "USD"});
+          }else if(res.data.content[0].currency === 1){
+            this.setState({loanCurrency: "EUR"});
+          }else{
+            this.setState({loanCurrency: "AMD"});
+          }
+        }
+     });
       AccountService.getAccounts(uid).then((res) => {
           this.setState({accounts: res.data.content});
           if(this.state.role==='user'){
             this.setState({sender: res.data.content[0].id});
           }
       });
-      LoanService.getAllLoanById(uid).then((res) => {
-        this.setState({loans: res.data.content});
-        if(this.state.role==='user' && !this.state.id){
-          this.setState({receiver: res.data.content[0].id});
-        }
-    });
       if(this.state.id){
         this.setState({receiver: this.state.id});
-        console.log(this.state.receiver);
+        LoanService.getLoanById(this.state.id).then((res) => {
+          this.setState({loanCurrency: res.data.currency});
+        });
         this.setState({"value":2});
       }
   }
@@ -95,10 +104,13 @@ class AddTransaction extends Component {
             }
         }).then(response => {
             let data = response.data;
+            this.setState({"balance": 1});
             this.setState({"message": data.message});
+            this.setState({"error": data.error});
             this.componentDidMount();
         }).catch(error => {
-            this.setState({"error": "Data Error"});
+            this.setState({"error": "Something wrong with data"});
+            setTimeout(() => this.setState({"error": ""}), 3000);
         });
         if(this.state.role==='admin'){
           this.setState(() => this.initialState);
@@ -106,16 +118,42 @@ class AddTransaction extends Component {
     };
 
     credentialChange = event => {
-        this.setState({
-            [event.target.name] : event.target.value
-        });
+        if(this.state.id && event.target.name==='receiver'){
+          LoanService.getLoanById(event.target.value).then((res) => {
+            this.setState({loanCurrency: res.data.currency});
+          });
+        }
+        if (event.target.name==='year' || event.target.name==='balance') {
+          if (event.target.value >0) {
+              this.setState({[event.target.name] : event.target.value});
+          }else{
+              this.setState({"error": "The value can not be less than 0"});
+              setTimeout(() => this.setState({"error": ""}), 3000);
+          }
+        }else{
+          this.setState({[event.target.name] : event.target.value});
+        }
     };
     createSelect(){
       return(
       <select name="sender" value={this.state.sender} onChange={this.credentialChange} className="form-control w-100">
           {
             this.state.accounts.map(account =>
-            <option key={account.id} value={account.id}>{account.id} : ({account.balance}$)</option>)
+            <option key={account.id} value={account.id}>{account.id} : ({(account.balance).toFixed(5)} {account.currency})</option>)
+         }
+      </select>
+      )
+    }
+    createSelectAccount(){
+      return(
+      <select name="sender" value={this.state.sender} onChange={this.credentialChange} className="form-control w-100">
+          {
+            this.state.accounts.map(account =>{
+              if(account.currency === this.state.loanCurrency){
+                return <option key={account.id} value={account.id}>{account.id} : ({(account.balance).toFixed(5)} {account.currency})</option>
+              }
+            }
+            )
          }
       </select>
       )
@@ -126,7 +164,7 @@ class AddTransaction extends Component {
       <select name="receiver" value={this.state.receiver} onChange={this.credentialChange} className="form-control w-100">
           {
             this.state.loans.map(loan =>
-            <option key={loan.id} value={loan.id}>{loan.name} : (id: {loan.id})</option>)
+            <option key={loan.id} value={loan.id}>{loan.name} : (id: {loan.id} monthly: {loan.monthly} {loan.currency})</option>)
          }
       </select>
       )
@@ -175,7 +213,7 @@ class AddTransaction extends Component {
         <label htmlFor="deposit" className="text-left w-100">Accont ID</label>
        {role==='admin'?
         <input type="number" className="form-control w-100" min="1" id="deposit" label="Account ID" name="sender" value={sender} placeholder="Sender Account ID" onChange={this.credentialChange}/>
-        :this.createSelect()}
+        :this.createSelectAccount()}
          <label htmlFor="loan" className="text-left w-100">Loan ID</label>
        {role==='admin'?
         <input type="number" className="form-control w-100" min="1" id="loan" label="Account ID" name="receiver" value={receiver} placeholder="Loan ID" onChange={this.credentialChange}/>

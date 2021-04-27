@@ -87,7 +87,7 @@ class ListAccountComponent extends Component {
                                 <tr key={account.id}>
                                     <td>{account.id}</td>
                                     <td>{account.currency}</td>
-                                    <td>{account.balance}</td>
+                                    <td>{(account.balance).toFixed(2)}</td>
                                     <td><a onClick={() => this.remove(account.id)} className="btn btn-outline-primary">Remove</a></td>
                                 </tr>)
                             }

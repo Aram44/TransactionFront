@@ -24,7 +24,7 @@ class ListTransactionComponent extends Component {
         }
     }
     initialState = {
-        transactions: [], idsArray: [],start:'', finish:'', status: 4,role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0,onFilter:false
+        transactions: [], idsArray: [],start:'', finish:'', status: 5,role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0,onFilter:false
     };
     gologin = () => {
         this.props.history.replace("/login");
@@ -46,8 +46,9 @@ class ListTransactionComponent extends Component {
                 console.log(res.data.pageable.pageNumber+1);
             });
         }else{
-            TransactionService.getAllTransactionById(this.state.id).then((res) => {
+            TransactionService.getAllTransactionById(this.state.id,this.state.page).then((res) => {
                 this.setState({transactions: res.data.content});
+                this.setState({pageCount: res.data.totalPages});
                 console.log(res);
             });
         }
@@ -63,9 +64,11 @@ class ListTransactionComponent extends Component {
             });
         }else{
             let uid = localStorage.getItem('uid');
-            TransactionService.getFilterUid(start,finish,uid).then((res) => {
+            TransactionService.getFilterUid(start,finish,status,uid,this.state.page).then((res) => {
                 console.log(res);
                 this.setState({transactions: res.data.content});
+                this.setState({pageCount: res.data.totalPages});
+                this.setState({onFilter: true});
             });
         }
     }
@@ -129,7 +132,7 @@ class ListTransactionComponent extends Component {
                         <FormControl style={{with:200}} className="ml-1 w-100">
                         <InputLabel id="demo-simple-select-label">Status</InputLabel>
                         <Select labelId="demo-simple-select-label" id="demo-simple-select" value={this.state.status} onChange={this.credentialChange} name="status">
-                        <MenuItem value={4}>All</MenuItem>
+                        <MenuItem value={5}>All</MenuItem>
                         <MenuItem value={0}>Process</MenuItem>
                         <MenuItem value={1}>Done</MenuItem>
                         <MenuItem value={2}>Refused</MenuItem>
@@ -149,7 +152,11 @@ class ListTransactionComponent extends Component {
                             <tr>
                                 <th>Select</th>
                                 <th>Transaction ID</th>
+                                <th>Sender</th>
+                                <th>Receiver</th>
+                                <th>Type</th>
                                 <th>Status</th>
+                                <th>Balance</th>
                                 <th>Time</th>
                                 <th>Action</th>
                             </tr>
@@ -160,7 +167,11 @@ class ListTransactionComponent extends Component {
                                 <tr key={transaction.id}>
                                     <td><Checkbox id={transaction.id} name="checkedG" onClick={this.handleCheckboxChange}/></td>
                                     <td>{transaction.id}</td>
+                                    <td>{transaction.sender}</td>
+                                    <td>{transaction.receiver}</td>
+                                    <td>{transaction.type}</td>
                                     <td>{transaction.status}</td>
+                                    <td>{transaction.balance}</td>
                                     <td>{transaction.sendtime}</td>
                                     {transaction.status === 'PROCESS' ? 
                                     this.state.role==='admin'? 

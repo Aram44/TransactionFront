@@ -13,10 +13,10 @@ class AddLoan extends Component {
     }
 
     initialState = {
-        months: [],amonths: [], year:1, type:0, amount: 5000, fee: 1, per: 2,error:'', message:'',monthlyPayment:421.19,totalPayment:5054.33,totalInterest: 54.33, isResult: false,name: ''
+        months: [],amonths: [], year:12, type:0, amount: 5000, fee: 1, per: 2,error:'', message:'',monthlyPayment:421.19,totalPayment:5054.33,totalInterest: 54.33, isResult: false,name: '',currency:0,currencyName:'USD'
     };
 
-    createLoan = (name, amount, interest, monthly, months, percent) => {
+    createLoan = (name, amount, interest, monthly, months, percent,currency) => {
         if(name.length >4 ){
             let uid = localStorage.getItem('uid');
             const credentials = JSON.stringify({
@@ -27,6 +27,7 @@ class AddLoan extends Component {
                 monthly: monthly,
                 months: months,
                 percent: percent,
+                currency: currency,
                 status: 0
             });
             const token = localStorage.getItem('jwtToken');
@@ -40,9 +41,11 @@ class AddLoan extends Component {
                 this.setState({"message": data.message});
             }).catch(error => {
                 this.setState({"error": "Wrong Data"});
+                setTimeout(() => this.setState({"error": ""}), 3000);
             });
         }else{
             this.setState({"error": "Name lengh is short"});
+            setTimeout(() => this.setState({"error": ""}), 3000);
         }
        
         window.scrollTo(0, 0);
@@ -50,7 +53,7 @@ class AddLoan extends Component {
     calculateResults = (amount, interest, years) => {
         const userAmount = Number(amount);
         const calculatedInterest = Number(interest) / 100 / 12;
-        const calculatedPayments = Number(years) * 12;
+        const calculatedPayments = Number(years);
         const x = Math.pow(1 + calculatedInterest, calculatedPayments);
         const monthly = (userAmount * x * calculatedInterest) / (x - 1);
      
@@ -75,30 +78,53 @@ class AddLoan extends Component {
         // this.setState({monts: []});
         this.state.months = [];
         let date = new Date();
-        for(let i=1;i<(this.state.year*12)+1; i++){
+        for(let i=1;i<(this.state.year)+1; i++){
             var dateFormat = new Date(date.setMonth(date.getMonth()+1)).toISOString().slice(0, 10);
             this.state.months.push({"id": i,"month": dateFormat});
         }
     }
 
     credentialChange = event => {
-        this.setState({[event.target.name] : event.target.value});
-        console.log(event.target.value);
+        if(event.target.name==='currency'){
+            if(event.target.value===0){
+                this.setState({currencyName : "USD"});
+            }else if(event.target.value===1){
+                this.setState({currencyName : "EUR"});
+            }else{
+                this.setState({currencyName : "AMD"});
+            }
+        }
+        if (event.target.name==='amount' || event.target.name==='year') {
+            if (event.target.value >0) {
+                this.setState({[event.target.name] : event.target.value});
+            }else{
+                this.setState({"error": "The value can not be less than 0"});
+                setTimeout(() => this.setState({"error": ""}), 3000);
+            }
+        }else{
+            this.setState({[event.target.name] : event.target.value});
+        }
     };
 
     render() {
-        const {amount,name,error,message,year,type,per,totalPayment,totalInterest,months,monthlyPayment} = this.state;
+        const {amount,name,error,message,year,per,totalPayment,totalInterest,months,monthlyPayment,currency,currencyName} = this.state;
 
         return (
-            <div className="container" style={{width: 510}}>
+            <div className="container" style={{width: 600}}>
             {message && <div className="alert alert-success">{message}</div>}
             {error && <div className="alert alert-danger">{error}</div>}
             <div noValidate autoComplete="off" className="container d-flex flex-column align-items-center">
                 <TextField id="standard-basic" className="w-100" minlenght="20" name="name" value={name} label="Name (max 120 symbols)" onChange={this.credentialChange}/>
+                <label htmlFor="currency"  className="text-left w-100 mt-2">Select currency for loan</label>
+                <Select labelId="demo-simple-select-label" id="currency" value={currency} onChange={this.credentialChange} name="currency" className="w-100">
+                    <MenuItem value={0}>USD</MenuItem>
+                    <MenuItem value={1}>EUR</MenuItem>
+                    <MenuItem value={2}>AMD</MenuItem>
+                </Select>
                 <label htmlFor="balanceDeposit"  className="text-left w-100 mt-2">Loan amount</label>
                 <input type="number" className="form-control w-100" min="1" id="balanceDeposit" label="Balance" name="amount" value={amount} placeholder="Balance" onChange={this.credentialChange}/>
-                {type===0?<label htmlFor="deposit" className="text-left w-100">Loan term in years</label>:<label for="year" className="text-left w-100">Loan term in months</label>}
-                <input type="number" className="form-control w-100" min="1" id="year" label="Account ID" name="year" value={year} placeholder="Account ID" onChange={this.credentialChange}/>
+                <label htmlFor="year" className="text-left w-100">Loan term in months</label>
+                <input type="number" className="form-control w-100" min="1" id="year" label="Months" name="year" value={year} placeholder="Months" onChange={this.credentialChange}/>
                 <label htmlFor="balanceDeposit"  className="text-left w-100 mt-2">Interest rate per year</label>
                 <Select labelId="demo-simple-select-label" id="demo-simple-select" value={per} onChange={this.credentialChange} name="per" className="w-100">
                     <MenuItem value={1}>1</MenuItem>
@@ -163,8 +189,8 @@ class AddLoan extends Component {
                     <MenuItem value={30.5}>30.5</MenuItem>
                 </Select>
             </div>
-            <div className="w-100 d-flex"><div className="mr-auto p-2">Total Paid</div><div className="p-2">{totalPayment}</div></div><hr className="m-0 p-0"/>
-            <div className="w-100 d-flex mb-2"><div className="mr-auto p-2">Total Interest Paid</div><div className="p-2">{totalInterest}</div></div>
+            <div className="w-100 d-flex"><div className="mr-auto p-2">Total Paid</div><div className="p-2">{totalPayment} {currencyName}</div></div><hr className="m-0 p-0"/>
+            <div className="w-100 d-flex mb-2"><div className="mr-auto p-2">Total Interest Paid</div><div className="p-2">{totalInterest} {currencyName}</div></div>
             <div className="d-flex flex-column align-items-center mb-2"><Button variant="contained" color="primary" className="mt-2" onClick={this.calculate}>Calculate</Button></div>
             {months.length>0?<div className="d-flex flex-column align-items-center">
                 <label htmlFor="balanceDeposit"  className="w-100 mt-2">Schedule</label>
@@ -173,6 +199,8 @@ class AddLoan extends Component {
                             <tr>
                                 <th>Month</th>
                                 <th>Paymant date</th>
+                                <th>Interest</th>
+                                <th>Principal</th>
                                 <th>Paymant</th>
                             </tr>
                         </thead>
@@ -182,13 +210,15 @@ class AddLoan extends Component {
                             <tr key={item.id}>
                             <td>{item.id}</td>
                                 <td>{item.month}</td>
-                                <td>{monthlyPayment}</td>
+                                <td>{(totalInterest/year).toFixed(2)} {currencyName}</td>
+                                <td>{(monthlyPayment - (totalInterest/year)).toFixed(2)} {currencyName}</td>
+                                <td>{monthlyPayment} {currencyName}</td>
                             </tr>)
                         }
                         </tbody>
                     </table>
             </div>:''}
-            <div className="d-flex flex-column align-items-center mb-2"><Button variant="contained" color="primary" className="mt-2" onClick={() => this.createLoan(name, amount, totalInterest, monthlyPayment, year*12, per)}>Send Request</Button></div>
+            <div className="d-flex flex-column align-items-center mb-2"><Button variant="contained" color="primary" className="mt-2" onClick={() => this.createLoan(name, amount, totalInterest, monthlyPayment, year, per,currency)}>Send Request</Button></div>
             </div>
         );
     }

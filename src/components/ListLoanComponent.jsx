@@ -22,7 +22,7 @@ class ListLoanComponent extends Component {
         }
     }
     initialState = {
-        loans: [],start:'', finish:'', status: 4, role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0,onFilter:false
+        loans: [],start:'', finish:'', status: 5, role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0,onFilter:false
     };
     onNavigateView(id){
         this.props.history.push("/loan/"+id);
@@ -55,7 +55,7 @@ class ListLoanComponent extends Component {
         }
     }
     doFilter(start,finish,status){
-            console.log(start);
+            console.log(status);
         if(this.state.role === 'admin'){
             LoanService.getFilter(start,finish,status,this.state.page).then((res) => {
                 console.log(res);
@@ -65,7 +65,7 @@ class ListLoanComponent extends Component {
             });
         }else{
             let uid = localStorage.getItem('uid');
-            LoanService.getFilterUid(start,finish,uid).then((res) => {
+            LoanService.getFilterUid(start,finish,status,uid,this.state.page).then((res) => {
                 console.log(res);
                 this.setState({loans: res.data.content});
             });
@@ -163,11 +163,12 @@ class ListLoanComponent extends Component {
                         <FormControl style={{with:200}} className="ml-1 w-100">
                         <InputLabel id="demo-simple-select-label">Status</InputLabel>
                         <Select labelId="demo-simple-select-label" id="demo-simple-select" value={this.state.status} onChange={this.credentialChange} name="status">
-                        <MenuItem value={4}>All</MenuItem>
+                        <MenuItem value={5}>All</MenuItem>
                         <MenuItem value={0}>Process</MenuItem>
                         <MenuItem value={1}>Done</MenuItem>
                         <MenuItem value={2}>Refused</MenuItem>
                         <MenuItem value={3}>Canceled</MenuItem>
+                        <MenuItem value={4}>Edited</MenuItem>
                         </Select>
                     </FormControl>
                 </div>
@@ -186,6 +187,7 @@ class ListLoanComponent extends Component {
                                 <th>Interest</th>
                                 <th>Monthly</th>
                                 <th>Months</th>
+                                <th>Currency</th>
                                 <th>Status</th>
                                 <th>Request Time</th>
                                 <th>Action</th>
@@ -200,6 +202,7 @@ class ListLoanComponent extends Component {
                                     <td>{loan.interest}</td>
                                     <td>{loan.monthly}</td>
                                     <td>{loan.months}</td>
+                                    <td>{loan.currency}</td>
                                     <td>{loan.status}</td>
                                     <td>{loan.requesttime}</td>
                                     {this.showLoanButtons(this.state.role,loan)}

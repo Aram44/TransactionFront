@@ -5,6 +5,7 @@ const SET_URL = "http://localhost:9090/api/v1/loan/loan/";
 const FILTER_URL = "http://localhost:9090/api/v1/loan/filter/";
 const UPDATE_URL = "http://localhost:9090/api/v1/loan/update/";
 const VIEW_URL = "http://localhost:9090/api/v1/loan/view/";
+const VIEW_INFO_URL = "http://localhost:9090/api/v1/loan/viewinfo/";
 const VIEW_LOAN_URL = "http://localhost:9090/api/v1/loan/viewloan/";
 const ACTION_URL = "http://localhost:9090/api/v1/loan/loan/";
 
@@ -45,6 +46,15 @@ class LoanService{
           }
         });
   }
+  getLoanInfoById(id){
+    const token = localStorage.getItem('jwtToken');
+    return axios.get(VIEW_INFO_URL+id,{
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    }
     getFilter(start,finish,status,page){
         let param = "?start="+start+"&finish="+finish+"&status="+status+"&page="+page;
         const token = localStorage.getItem('jwtToken');
@@ -55,8 +65,8 @@ class LoanService{
             }
           });
     }
-    getFilterUid(start,finish,uid){
-        let param = "?start="+start+"&finish="+finish+"&uid="+uid;
+    getFilterUid(start,finish,status,uid,page){
+        let param = "?start="+start+"&finish="+finish+"&status="+status+"&uid="+uid+"&page="+page;
         const token = localStorage.getItem('jwtToken');
         return axios.get(FILTER_URL+param,{
             headers: {

@@ -17,9 +17,9 @@ class TransactionService{
             }
           });
     }
-    getAllTransactionById(uid){
+    getAllTransactionById(uid,page){
         const token = localStorage.getItem('jwtToken');
-        return axios.get(SET_URL+uid,{
+        return axios.get(SET_URL+uid+"?page="+page,{
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
@@ -45,8 +45,8 @@ class TransactionService{
             }
           });
     }
-    getFilterUid(start,finish,uid){
-        let param = "?start="+start+"&finish="+finish+"&uid="+uid;
+    getFilterUid(start,finish,status,uid,page){
+        let param = "?start="+start+"&finish="+finish+"&status="+status+"&uid="+uid+"&page="+page;
         const token = localStorage.getItem('jwtToken');
         return axios.get(FILTER_URL+param,{
             headers: {

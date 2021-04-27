@@ -42,6 +42,10 @@ class View extends Component {
                         </thead>
                         <tbody>
                             <tr>
+                                <td>Type</td>
+                                <td>{this.state.type}</td>
+                            </tr>
+                            <tr>
                                 <td>Id</td>
                                 <td>{this.state.id}</td>
                             </tr>
@@ -82,10 +86,6 @@ class View extends Component {
                             <tr>
                                 <td>Send Time</td>
                                 <td>{this.state.sendtime}</td>
-                            </tr>
-                            <tr>
-                                <td>Type</td>
-                                <td>{this.state.type}</td>
                             </tr>
                         </tbody>
                     </table>
