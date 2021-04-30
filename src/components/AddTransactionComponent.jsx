@@ -56,6 +56,7 @@ class AddTransaction extends Component {
         this.setState({loans: res.data.content});
         if(this.state.role==='user' && !this.state.id){
           this.setState({receiver: res.data.content[0].id});
+          this.setState({id: res.data.content[0].id});
           if(res.data.content[0].currency === 0){
             this.setState({loanCurrency: "USD"});
           }else if(res.data.content[0].currency === 1){
@@ -88,6 +89,7 @@ class AddTransaction extends Component {
       console.log(this.state.receiver);
       console.log(this.state.balance);
       console.log(this.state.month);
+      if(this.state.balance > 0 || this.state.balance!==''){
         const credentials = JSON.stringify({
             sender: this.state.sender,
             receiver: this.state.receiver,
@@ -115,6 +117,10 @@ class AddTransaction extends Component {
         if(this.state.role==='admin'){
           this.setState(() => this.initialState);
         }
+      }else{
+        this.setState({"error": "The balance can not be less than 0"});
+        setTimeout(() => this.setState({"error": ""}), 3000);
+      }
     };
 
     credentialChange = event => {
@@ -124,7 +130,8 @@ class AddTransaction extends Component {
           });
         }
         if (event.target.name==='year' || event.target.name==='balance') {
-          if (event.target.value >0) {
+          console.log(event.target.value);
+          if (Math.ceil(event.target.value) > 0 || event.target.value==='') {
               this.setState({[event.target.name] : event.target.value});
           }else{
               this.setState({"error": "The value can not be less than 0"});

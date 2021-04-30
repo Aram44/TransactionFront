@@ -51,7 +51,7 @@ class View extends Component {
                     </div>
                     <div className="row mt-1 mb-1">
                         <div className="col text-left">Principal</div>
-                        <div className="col col-lg-3">{(balance-(Math.floor(balance/monthly)*interest)).toFixed(2)} {currency}</div>
+                        <div className="col col-lg-3">{Math.ceil((balance-(Math.floor(balance/monthly)*interest)).toFixed(2))} {currency}</div>
                     </div>
                     <div className="row mt-1 mb-1">
                         <div className="col text-left">Balance</div>
@@ -95,7 +95,7 @@ class View extends Component {
                                     <td>{schedule.month}</td>
                                     <td>{schedule.paymantdate}</td>
                                     <td>{schedule.monthly} {currency}</td>
-                                    <td>{schedule.monthly-schedule.balance} {currency}</td>
+                                    <td>{(schedule.monthly-schedule.balance).toFixed(2)} {currency}</td>
                                     <td>{(schedule.monthly-interest).toFixed(2)} {currency}</td>
                                     <td>{interest} {currency}</td>
                                     <td>{schedule.balance} {currency}</td>

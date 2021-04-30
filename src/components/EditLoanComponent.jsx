@@ -29,6 +29,7 @@ class AddLoan extends Component {
           this.setState({totalPayment: res.data.amount+res.data.interest});
           this.setState({per: res.data.percent});
           this.setState({name: res.data.name});
+          this.setState({currencyName: res.data.currency});
           if(res.data.currency === "EUR"){
             this.setState({currency: 1});
           }else if(res.data.currency === "AMD"){

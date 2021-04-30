@@ -9,7 +9,7 @@ class View extends Component {
     }
 
     initialState = {
-        id: this.props.match.params.id,role:localStorage.getItem('role'),sender:'',senderName:'',receiverName:'',senderEmail:'',receiverEmail:'',receiver:'',balance:'',fee:'',status:'',sendtime:'',type:''
+        id: this.props.match.params.id,role:localStorage.getItem('role'),sender:'',senderName:'',receiverName:'',senderEmail:'',receiverEmail:'',receiver:'',balanceSender:'',balanceReceiver:'',fee:'',status:'',sendtime:'',type:''
     };
 
     componentDidMount(){
@@ -21,7 +21,8 @@ class View extends Component {
             this.setState({"receiverName":res.data.receiverName});
             this.setState({"senderEmail":res.data.senderEmail});
             this.setState({"receiverEmail":res.data.receiverEmail});
-            this.setState({"balance":res.data.balance});
+            this.setState({"balanceSender":res.data.balanceSender});
+            this.setState({"balanceReceiver":res.data.balanceReceiver});
             this.setState({"fee":res.data.fee});
             this.setState({"status":res.data.status});
             this.setState({"sendtime":res.data.sendtime});
@@ -72,9 +73,15 @@ class View extends Component {
                             </tr>
                             :''}
                             <tr>
-                                <td>Balance</td>
-                                <td>{this.state.balance}</td>
+                                <td>From {this.state.sender}</td>
+                                <td>{this.state.balanceSender}</td>
                             </tr>
+                            {this.state.type!=='WITHDRAWAL' || this.state.type!=='DEPOSIT'?
+                            <tr>
+                                <td>To {this.state.receiver}</td>
+                                <td>{this.state.balanceReceiver}</td>
+                            </tr>
+                            :''}
                             <tr>
                                 <td>Fee</td>
                                 <td>{this.state.fee}</td>

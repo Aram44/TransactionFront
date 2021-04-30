@@ -169,7 +169,7 @@ class ListTransactionComponent extends Component {
                                     <td>{transaction.id}</td>
                                     <td>{transaction.sender}</td>
                                     <td>{transaction.receiver}</td>
-                                    <td>{transaction.type}</td>
+                                    <td>{transaction.sid===transaction.rid?'EXCHANGE':transaction.type}</td>
                                     <td>{transaction.status}</td>
                                     <td>{transaction.balance}</td>
                                     <td>{transaction.sendtime}</td>

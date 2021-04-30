@@ -11,6 +11,7 @@ import ViewLoanComponent from './ViewLoanComponent';
 import ListLoanComponent from './ListLoanComponent';
 import AddLoanComponent from './AddLoanComponent';
 import EditLoanComponent from './EditLoanComponent';
+import PageReportComponent from './PageReportComponent';
 
 class HomeComponent extends Component {
   constructor(props) {
@@ -48,6 +49,7 @@ class HomeComponent extends Component {
                     {this.state.role==='user'?<Link to={"/"} className="p-2 text-dark">My Transactions</Link>:<Link to={"/"} className="p-2 text-dark">Transactions</Link>}
                     {this.state.role==='user'?<Link to={"/account"} className="p-2 text-dark">My Accounts</Link>:<Link to={"/users"} className="p-2 text-dark">Users</Link>}
                     {this.state.role==='user'?<Link to={"/loan"} className="p-2 text-dark">My Loans</Link>:<Link to={"/loan"} className="p-2 text-dark">Loans</Link>}
+                    {this.state.role==='user'?'':<Link to={"/report"} className="p-2 text-dark">Report</Link>}
             </nav>
             <div style={{flex: 1}}></div>
             { <Link to={"/logout"} onClick={this.logoutClick} className="btn btn-outline-primary nav-link">Sign Out</Link> }
@@ -72,6 +74,9 @@ class HomeComponent extends Component {
           </Route>
           <Route exact path="/loan">
             <ListLoanComponent/>
+          </Route>
+          <Route exact path="/report">
+            <PageReportComponent/>
           </Route>
           <Route exact path="/register">
             <RegisterConponent />
