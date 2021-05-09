@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-const BASE_URL = "http://localhost:9090/api/v1/alltransactions/";
-const SET_URL = "http://localhost:9090/api/v1/transaction/";
-const FILTER_URL = "http://localhost:9090/api/v1/filter/";
+const BASE_URL = "http://localhost:9090/api/v1/transaction";
+const SET_URL = "http://localhost:9090/api/v1/transaction/list/";
 const UPDATE_URL = "http://localhost:9090/api/v1/transaction/update/";
 const VIEW_URL = "http://localhost:9090/api/v1/transaction/view/";
 const ACTION_URL = "http://localhost:9090/api/v1/transaction/";
@@ -35,25 +34,27 @@ class TransactionService{
             }
           });
     }
-    getFilter(start,finish,status,page){
-        let param = "?start="+start+"&finish="+finish+"&status="+status+"&page="+page;
-        const token = localStorage.getItem('jwtToken');
-        return axios.get(FILTER_URL+param,{
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
-          });
-    }
-    getFilterUid(start,finish,status,uid,page){
-        let param = "?start="+start+"&finish="+finish+"&status="+status+"&uid="+uid+"&page="+page;
-        const token = localStorage.getItem('jwtToken');
-        return axios.get(FILTER_URL+param,{
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
-          });
+    getFilter(from,to,status,uid,page){
+      let param = '?';
+      if (from!=='') {
+        param+= "from="+from;
+      }
+      if (to!=='') {
+        param+= "to="+to;
+      }
+      if (status!=='ALL' && status!=='') {
+        param+= "status="+status;
+      }
+      if (uid!=='' && uid!==0) {
+        param+= "user="+uid;
+      }
+      const token = localStorage.getItem('jwtToken');
+      return axios.get(BASE_URL+param,{
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
     }
     setTransactions(sid,rid,bal,type){
         const credentials = JSON.stringify({

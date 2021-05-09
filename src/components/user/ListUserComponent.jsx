@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import UserService from '../services/UserService';
+import UserService from '../../services/UserService';
 import { Link, withRouter } from "react-router-dom";
 
 class ListUserComponent extends Component {

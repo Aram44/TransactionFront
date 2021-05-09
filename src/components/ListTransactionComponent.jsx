@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component} from 'react';
 import TransactionService from '../services/TransactionService';
 import { Link, withRouter } from "react-router-dom";
 import TextField from '@material-ui/core/TextField';
@@ -13,6 +13,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import Checkbox from '@material-ui/core/Checkbox';
+import InfoPopup from './InfoPopupComponent';
+import UserService from '../services/UserService';
 
 class ListTransactionComponent extends Component {
     constructor(props){
@@ -24,7 +26,7 @@ class ListTransactionComponent extends Component {
         }
     }
     initialState = {
-        transactions: [], idsArray: [],start:'', finish:'', status: 5,role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0,onFilter:false
+        transactions: [], idsArray: [],start:'', finish:'', status: 'ALL',role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0,onFilter:false,showPopup:false,userInfo:''
     };
     gologin = () => {
         this.props.history.replace("/login");
@@ -37,13 +39,15 @@ class ListTransactionComponent extends Component {
             [event.target.name] : event.target.value
         });
     };
+    updatePopup = (popup) => {this.setState({ showPopup: popup})}
+
     componentDidMount(){
         if(this.state.role === 'admin'){
-            TransactionService.getAllTransactions(this.state.page).then((res) => {
+            TransactionService.getFilter('','','','','').then((res) => {
+                console.log(res);
                 this.setState({transactions: res.data.content});
                 this.setState({pageCount: res.data.totalPages});
-                console.log(res);
-                console.log(res.data.pageable.pageNumber+1);
+                this.setState({onFilter: true});
             });
         }else{
             TransactionService.getAllTransactionById(this.state.id,this.state.page).then((res) => {
@@ -52,11 +56,18 @@ class ListTransactionComponent extends Component {
                 console.log(res);
             });
         }
+        console.log(localStorage.getItem('jwtToken'));
     }
-    doFilter(start,finish,status){
-            console.log(start);
+
+    doFilter(start,end,status){
+        if (start!=='') {
+            start = new Date(start).toISOString().slice(0, 19).replace('T', ' ');
+        }
+        if (end!=='') {
+            end = new Date(end).toISOString().slice(0, 19).replace('T', ' ');
+        }
         if(this.state.role === 'admin'){
-            TransactionService.getFilter(start,finish,status,this.state.page).then((res) => {
+            TransactionService.getFilter(start,end,status,this.state.page).then((res) => {
                 console.log(res);
                 this.setState({transactions: res.data.content});
                 this.setState({pageCount: res.data.totalPages});
@@ -64,13 +75,14 @@ class ListTransactionComponent extends Component {
             });
         }else{
             let uid = localStorage.getItem('uid');
-            TransactionService.getFilterUid(start,finish,status,uid,this.state.page).then((res) => {
+            TransactionService.getFilterUid(start,end,status,uid,this.state.page).then((res) => {
                 console.log(res);
                 this.setState({transactions: res.data.content});
                 this.setState({pageCount: res.data.totalPages});
                 this.setState({onFilter: true});
             });
         }
+        
     }
     action(id,action){
         TransactionService.action(id,action).then((res) => {
@@ -112,6 +124,15 @@ class ListTransactionComponent extends Component {
         this.setState({idsArray: checkArray});
         console.log(checkArray);
       };
+
+    showPopupInfo(id){
+        UserService.getUserInformation(id).then((res) => {
+            console.log(res);
+            let info = '<h1>'+res.data.name+'</h1><p>'+res.data.email+'</p>';
+            this.setState({userInfo: info});
+            this.setState({showPopup: true});
+        });
+    }
     render() {
         const {pageCount} = this.state;
         return (
@@ -132,11 +153,11 @@ class ListTransactionComponent extends Component {
                         <FormControl style={{with:200}} className="ml-1 w-100">
                         <InputLabel id="demo-simple-select-label">Status</InputLabel>
                         <Select labelId="demo-simple-select-label" id="demo-simple-select" value={this.state.status} onChange={this.credentialChange} name="status">
-                        <MenuItem value={5}>All</MenuItem>
-                        <MenuItem value={0}>Process</MenuItem>
-                        <MenuItem value={1}>Done</MenuItem>
-                        <MenuItem value={2}>Refused</MenuItem>
-                        <MenuItem value={3}>Canceled</MenuItem>
+                        <MenuItem value={'ALL'}>All</MenuItem>
+                        <MenuItem value={'PROCESS'}>Process</MenuItem>
+                        <MenuItem value={'DONE'}>Done</MenuItem>
+                        <MenuItem value={'REFUSED'}>Refused</MenuItem>
+                        <MenuItem value={'CANCELED'}>Canceled</MenuItem>
                         </Select>
                     </FormControl>
                 </div>
@@ -167,12 +188,12 @@ class ListTransactionComponent extends Component {
                                 <tr key={transaction.id}>
                                     <td><Checkbox id={transaction.id} name="checkedG" onClick={this.handleCheckboxChange}/></td>
                                     <td>{transaction.id}</td>
-                                    <td>{transaction.sender}</td>
-                                    <td>{transaction.receiver}</td>
-                                    <td>{transaction.sid===transaction.rid?'EXCHANGE':transaction.type}</td>
+                                    <td><a onClick={() => this.showPopupInfo(transaction.sender.id)} className="btn btn-outline-primary">{transaction.sender.user.name}</a></td>
+                                    <td><a onClick={() => this.showPopupInfo(transaction.receiver.id)} className="btn btn-outline-primary">{transaction.receiver.user.name}</a></td>
+                                    <td>{transaction.type}</td>
                                     <td>{transaction.status}</td>
-                                    <td>{transaction.balance}</td>
-                                    <td>{transaction.sendtime}</td>
+                                    <td>{transaction.balance} {transaction.sender.currency}</td>
+                                    <td>{transaction.sendtime.substring(0, transaction.sendtime.indexOf('T'))} {transaction.sendtime.substring(transaction.sendtime.indexOf('T')+1, transaction.sendtime.indexOf('.'))}</td>
                                     {transaction.status === 'PROCESS' ? 
                                     this.state.role==='admin'? 
                                         <td>
@@ -194,6 +215,9 @@ class ListTransactionComponent extends Component {
                         </tbody>
                     </table>
                 </div>
+                <InfoPopup trigger={this.state.showPopup} setTrigger={this.updatePopup}>
+                    {this.state.userInfo}
+                </InfoPopup>
                 <div className="w-100 d-flex justify-content-center">
                     {this.state.pageCount>1?
                     <ReactPaginate

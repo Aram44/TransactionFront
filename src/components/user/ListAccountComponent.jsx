@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import AccountService from '../services/AccountService';
+import AccountService from '../../services/AccountService';
 import {withRouter} from 'react-router-dom';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
@@ -21,7 +21,8 @@ class ListAccountComponent extends Component {
     componentDidMount(){
         let uid = localStorage.getItem('uid');
         AccountService.getAccounts(uid).then((res) => {
-            this.setState({accounts: res.data.content});
+            console.log(res);
+            this.setState({accounts: res.data});
         });
     }
     create = () => {

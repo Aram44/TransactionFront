@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import LoanService from '../services/LoanService';
+import LoanService from '../../services/LoanService';
 import { Link, withRouter } from "react-router-dom";
 import TextField from '@material-ui/core/TextField';
 import Accordion from '@material-ui/core/Accordion';
@@ -12,8 +12,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import InfoPopup from './InfoPopupComponent';
-import UserService from '../services/UserService';
+import InfoPopup from '../InfoPopupComponent';
+import UserService from '../../services/UserService';
 
 class ListLoanComponent extends Component {
     constructor(props){
@@ -24,7 +24,7 @@ class ListLoanComponent extends Component {
         }
     }
     initialState = {
-        loans: [],start:'', end:'', status: 'ALL', role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0
+        loans: [],start:'', finish:'', status: 5, role: localStorage.getItem('role'), id: localStorage.getItem('uid'), pageCount: 0, page: 0,onFilter:false,showPopup:false,userInfo:''
     };
     onNavigateView(id){
         this.props.history.push("/loan/"+id);
@@ -55,17 +55,21 @@ class ListLoanComponent extends Component {
                 console.log(res);
             });
         }
+
     }
     updatePopup = (popup) => {this.setState({ showPopup: popup})}
-    doFilter(start,end,status){
-        if (start!=='') {
-            start = new Date(start).toISOString().slice(0, 19).replace('T', ' ');
-        }
-        if (end!=='') {
-            end = new Date(end).toISOString().slice(0, 19).replace('T', ' ');
-        }
+    showPopupInfo(id){
+        UserService.getUserInformation(id).then((res) => {
+            console.log(res);
+            let info = '<h1>'+res.data.name+'</h1><p>'+res.data.email+'</p>';
+            this.setState({userInfo: info});
+            this.setState({showPopup: true});
+        });
+    }
+    doFilter(start,finish,status){
+            console.log(status);
         if(this.state.role === 'admin'){
-            LoanService.getFilter(start,end,status,this.state.page).then((res) => {
+            LoanService.getFilter(start,finish,status,this.state.page).then((res) => {
                 console.log(res);
                 this.setState({loans: res.data.content});
                 this.setState({pageCount: res.data.totalPages});
@@ -73,14 +77,11 @@ class ListLoanComponent extends Component {
             });
         }else{
             let uid = localStorage.getItem('uid');
-            LoanService.getFilterUid(start,end,status,uid,this.state.page).then((res) => {
+            LoanService.getFilterUid(start,finish,status,uid,this.state.page).then((res) => {
                 console.log(res);
                 this.setState({loans: res.data.content});
-                this.setState({pageCount: res.data.totalPages});
-                this.setState({onFilter: true});
             });
         }
-        
     }
     action(id,action){
         LoanService.action(id,action).then((res) => {
@@ -90,65 +91,45 @@ class ListLoanComponent extends Component {
     }
     handlePageClick= (data) => {
         this.setState({page: data.selected});
-        let start = this.state.start;
-        let end = this.state.end;
-        if (start!=='') {
-            start = new Date(start).toISOString().slice(0, 19).replace('T', ' ');
-        }
-        if (end!=='') {
-            end = new Date(end).toISOString().slice(0, 19).replace('T', ' ');
-        }
-        LoanService.getFilter(start,end,this.state.status,this.state.id,data.selected).then((res) => {
-            console.log(res);
-            this.setState({loans: res.data.content});
-            this.setState({pageCount: res.data.totalPages});
-        });
-      }
-    showLoanButtons(role, loan){
-        if(role==="admin"){
-            if(loan.status==="PROCESS"){
-                return(
-                <td>
-                    <a onClick={() => this.action(loan.id,1)} type='submit' className='btn btn-outline-primary'>Approve</a>
-                    <a onClick={() => this.action(loan.id,2)} type="submit" className="btn btn-outline-primary">Reject</a>
-                    <a onClick={() => this.onNavigateViewEdit(loan.id)} type="submit" className="btn btn-outline-primary">Edit</a>
-                </td>
-                )
-            }else if(loan.status==="CANCELED"){
-                return(
-                    <td>CANCELED</td>
-                    )
-            }else{
-                return(
-                    <td>
-                        <a onClick={() => this.onNavigateView(loan.id)} className="btn btn-outline-primary">View</a>
-                    </td>
-                )
-            }
+        if(this.state.onFiler){
+            LoanService.getFilter(this.state.start,this.state.finish,this.state.status,data.selected).then((res) => {
+                console.log(res);
+                this.setState({loans: res.data.content});
+                this.setState({pageCount: res.data.totalPages});
+                this.setState({onFilter: true});
+            });
         }else{
-            if(loan.status==="EDITED"){
-                return(
-                <td>
-                    <a onClick={() => this.action(loan.id,1)} type='submit' className='btn btn-outline-primary'>Approve</a>
-                    <a onClick={() => this.action(loan.id,2)} type="submit" className="btn btn-outline-primary">Reject</a>
-                </td>
-                )
-            }else if(loan.status==="PROCESS"){
-                return(
-                <td>
-                    <a onClick={() => this.action(loan.id,3)} type="submit" className="btn btn-outline-primary">Cancel</a>
-                </td>)
-            }else if(loan.status==="CANCELED"){
-                return(
-                    <td>CANCELED</td>
-                    )
-            }else{
-                return(
-                <td>
-                    <a onClick={() => this.onNavigateView(loan.id)} className="btn btn-outline-primary">View</a>
-                    <a onClick={() => this.onNavigateViewPay(loan.id)} type="submit" className="btn btn-outline-primary">Pay</a>
-                </td>)
-            }
+            LoanService.getAllTransactions(data.selected).then((res) => {
+                this.setState({loans: res.data.content});
+                this.setState({pageCount: res.data.totalPages});
+                console.log(res);
+                console.log(res.data.pageable.pageNumber+1);
+            });
+        }
+        
+      }
+    showCurrency(currency){
+        switch(currency){
+            case 1:
+                return 'EUR';
+            case 2:
+                return 'AMD';
+            default:
+                return 'USD';
+        }
+    }
+    showStatus(status){
+        switch(status){
+            case 1:
+                return 'Approved';
+            case 2:
+                return 'Refused';
+            case 3:
+                return 'Canceled';
+            case 4:
+                return 'Edited';
+            default:
+                return 'In Process';
         }
     }
     showPopupInfo(id){
@@ -174,24 +155,24 @@ class ListLoanComponent extends Component {
                 <div className="d-flex justify-content-center w-75">
                     <TextField id="date" label="from" type="datetime-local" name="start" value={this.state.start} onChange={this.credentialChange}
                         className="form-control" InputLabelProps={{shrink: true,}}/>
-                    <TextField id="date" label="to" type="datetime-local" name="finish" value={this.state.end} onChange={this.credentialChange}
+                    <TextField id="date" label="to" type="datetime-local" name="finish" value={this.state.finish} onChange={this.credentialChange}
                         className="form-control ml-1" InputLabelProps={{shrink: true,}}/>
                         <FormControl style={{with:200}} className="ml-1 w-100">
                         <InputLabel id="demo-simple-select-label">Status</InputLabel>
                         <Select labelId="demo-simple-select-label" id="demo-simple-select" value={this.state.status} onChange={this.credentialChange} name="status">
-                        <MenuItem value={'ALL'}>All</MenuItem>
-                        <MenuItem value={'PROCESS'}>Process</MenuItem>
-                        <MenuItem value={'DONE'}>Done</MenuItem>
-                        <MenuItem value={'REFUSED'}>Refused</MenuItem>
-                        <MenuItem value={'CANCELED'}>Canceled</MenuItem>
-                        <MenuItem value={'EDITED'}>Edited</MenuItem>
+                        <MenuItem value={5}>All</MenuItem>
+                        <MenuItem value={0}>Process</MenuItem>
+                        <MenuItem value={1}>Done</MenuItem>
+                        <MenuItem value={2}>Refused</MenuItem>
+                        <MenuItem value={3}>Canceled</MenuItem>
+                        <MenuItem value={4}>Edited</MenuItem>
                         </Select>
                     </FormControl>
                 </div>
             </div>
         </AccordionDetails>
         <AccordionActions>
-        <button className="btn btn-outline-primary mt-4" onClick={() => this.doFilter(this.state.start,this.state.end,this.state.status)}>Search</button>
+        <button className="btn btn-outline-primary mt-4" onClick={() => this.doFilter(this.state.start,this.state.finish,this.state.status)}>Search</button>
         </AccordionActions>
       </Accordion>
                 <div className="row">
@@ -209,25 +190,23 @@ class ListLoanComponent extends Component {
                                 <th>Percent</th>
                                 <th>Status</th>
                                 <th>Request Time</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {
                                 this.state.loans.map(loan =>
-                                <tr key={loan.id}>
-                                   <td>{loan.id}</td>
-                                    <td>{<a onClick={() => this.showPopupInfo(loan.user.id)} className="btn btn-outline-primary">{loan.user.name}</a>}</td>
-                                    <td>{loan.name}</td>
-                                    <td>{loan.amount}</td>
-                                    <td>{loan.interest}</td>
-                                    <td>{loan.monthly}</td>
-                                    <td>{loan.months}</td>
-                                    <td>{loan.currency}</td>
-                                    <td>{loan.percent}</td>
-                                    <td>{loan.status}</td>
-                                    <td>{loan.requesttime.substring(0, loan.requesttime.indexOf('T'))} {loan.requesttime.substring(loan.requesttime.indexOf('T')+1, loan.requesttime.indexOf('.'))}</td>
-                                    {this.showLoanButtons(this.state.role,loan)}
+                                <tr key={loan[0]}>
+                                    <td>{loan[0]}</td>
+                                    <td>{<a onClick={() => this.showPopupInfo(loan[11])} className="btn btn-outline-primary">{loan[12]===null?'User Removed':loan[12]}</a>}</td>
+                                    <td>{loan[2]}</td>
+                                    <td>{loan[1]}</td>
+                                    <td>{loan[3]}</td>
+                                    <td>{loan[4]}</td>
+                                    <td>{loan[5]}</td>
+                                    <td>{this.showCurrency(loan[7])}</td>
+                                    <td>{loan[6]}</td>
+                                    <td>{this.showStatus(loan[8])}</td>
+                                    <td>{loan[10].substring(0, loan[10].indexOf('T'))} {loan[10].substring(loan[10].indexOf('T')+1, loan[10].indexOf('.'))}</td>
                                 </tr>)
                             }
                         </tbody>

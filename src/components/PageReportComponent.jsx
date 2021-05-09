@@ -4,6 +4,7 @@ import {BrowserRouter as Router,Switch,Route,Link} from "react-router-dom";
 import AllAmountComponent from './reports/AllAmountComponent';
 import ListScheduleComponent from './reports/ListScheduleComponent';
 import ListTransactionComponent from './reports/ListTransactionComponent';
+import ListLoanComponent from './reports/ListLoanComponent';
 import UserAmountComponent from './reports/UserAmountComponent';
 
 class PageReportComponent extends Component {
@@ -16,6 +17,7 @@ class PageReportComponent extends Component {
                         <li className="nav-item"><Link to={"/report/"} className="nav-link">Total amounts</Link></li>
                         <li className="nav-item"><Link to={"/report/user/"} className="nav-link">Users balance</Link></li>
                         <li className="nav-item"><Link to={"/report/transactions/"} className="nav-link">Transactions</Link></li>
+                        <li className="nav-item"><Link to={"/report/loans/"} className="nav-link">Loans</Link></li>
                         <li className="nav-item"><Link to={"/report/payments/"} className="nav-link">Payments</Link></li>
                     </ul>
                 </div>
@@ -30,6 +32,9 @@ class PageReportComponent extends Component {
                     </Route>
                     <Route exact path="/report/transactions/">
                         <ListTransactionComponent/>
+                    </Route>
+                    <Route exact path="/report/loans/">
+                        <ListLoanComponent/>
                     </Route>
                     <Route exact path="/report/payments/">
                         <ListScheduleComponent/>

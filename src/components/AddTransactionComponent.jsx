@@ -91,15 +91,21 @@ class AddTransaction extends Component {
       console.log(this.state.month);
       if(this.state.balance > 0 || this.state.balance!==''){
         const credentials = JSON.stringify({
-            sender: this.state.sender,
-            receiver: this.state.receiver,
             balance: this.state.balance,
-            status: 1,
+            status: 'PROCESS',
             month: this.state.month,
-            type: type
+            type: type,
+            sender:{
+              id: this.state.sender
+            },
+            receiver:{
+              id: this.state.receiver
+            }
+
         });
+      alert("ok");
         const token = localStorage.getItem('jwtToken');
-        axios.post("http://localhost:9090/api/v1/transaction/", credentials, {
+        axios.post("http://localhost:9090/api/v1/transaction/save/", credentials, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`

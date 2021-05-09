@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = "http://localhost:9090/api/v1/loan/allloans/";
+const BASE_URL = "http://localhost:9090/api/v1/loan";
 const SET_URL = "http://localhost:9090/api/v1/loan/loan/";
 const FILTER_URL = "http://localhost:9090/api/v1/loan/filter/";
 const UPDATE_URL = "http://localhost:9090/api/v1/loan/update/";
@@ -55,15 +55,30 @@ class LoanService{
         }
       });
     }
-    getFilter(start,finish,status,page){
-        let param = "?start="+start+"&finish="+finish+"&status="+status+"&page="+page;
-        const token = localStorage.getItem('jwtToken');
-        return axios.get(FILTER_URL+param,{
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
-          });
+    getFilter(from,to,status,uid,page){
+      let param = '?';
+      if (from!=='') {
+        param+= "from="+from;
+      }
+      if (to!=='') {
+        param+= "to="+to;
+      }
+      if (status!=='ALL' && status!=='') {
+        param+= "status="+status;
+      }
+      if (uid!=='' && uid!=='1' && uid!==0) {
+        param+= "user="+uid;
+      }
+      if (page!=='') {
+        param+= "page="+page;
+      }
+      const token = localStorage.getItem('jwtToken');
+      return axios.get(BASE_URL+param,{
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
     }
     getFilterUid(start,finish,status,uid,page){
         let param = "?start="+start+"&finish="+finish+"&status="+status+"&uid="+uid+"&page="+page;

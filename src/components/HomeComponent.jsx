@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import ListTransactionComponent from './ListTransactionComponent';
-import ListAccountComponent from './ListAccountComponent';
+import ListAccountComponent from './user/ListAccountComponent';
 import {BrowserRouter as Router,Switch,Route,Link} from "react-router-dom";
-import ListUserComponent from './ListUserComponent';
+import ListUserComponent from './user/ListUserComponent';
 import {withRouter} from 'react-router-dom';
 import RegisterConponent from './RegisterConponent';
 import AddTransactionComponent from './AddTransactionComponent';

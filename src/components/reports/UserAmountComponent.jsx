@@ -3,6 +3,8 @@ import {withRouter} from 'react-router-dom';
 import AccountService from '../../services/AccountService';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import InfoPopup from '../InfoPopupComponent';
+import UserService from '../../services/UserService';
 
 
 class UserAmountComponent extends Component {
@@ -19,7 +21,15 @@ class UserAmountComponent extends Component {
             this.setState({pageCount: res.data.totalPages});
         });
     }
-
+    updatePopup = (popup) => {this.setState({ showPopup: popup})}
+    showPopupInfo(id){
+        UserService.getUserInformation(id).then((res) => {
+            console.log(res);
+            let info = '<h1>'+res.data.name+'</h1><p>'+res.data.email+'</p>';
+            this.setState({userInfo: info});
+            this.setState({showPopup: true});
+        });
+    }
     credentialChange = event => {
         console.log(event.target.value);
         this.setState({[event.target.name] : event.target.value});
@@ -60,7 +70,7 @@ class UserAmountComponent extends Component {
                         <thead className="thead-dark">
                             <tr>
                                 <th>Account ID</th>
-                                <th>User ID</th>
+                                <th>User</th>
                                 <th>Currency</th>
                                 <th>Balance</th>
                             </tr>
@@ -70,13 +80,16 @@ class UserAmountComponent extends Component {
                                 this.state.accounts.map(account =>
                                 <tr key={account.id}>
                                     <td>{account.id}</td>
-                                    <td>{account.uid}</td>
+                                    <td><a onClick={() => this.showPopupInfo(account.user.id)} className="btn btn-outline-primary">{account.user.name}</a></td>
                                     <td>{account.currency}</td>
                                     <td>{(account.balance).toFixed(2)}</td>
                                 </tr>)
                             }
                         </tbody>
                     </table>
+                <InfoPopup trigger={this.state.showPopup} setTrigger={this.updatePopup}>
+                    {this.state.userInfo}
+                </InfoPopup>
                 </div>
             </div>
         );

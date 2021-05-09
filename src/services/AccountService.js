@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_ALL_URL = "http://localhost:9090/api/v1/account/";
+const BASE_ALL_URL = "http://localhost:9090/api/v1/account/list";
 const FILTER_URL = "http://localhost:9090/api/v1/account/find";
 const BASE_URL = "http://localhost:9090/api/v1/account/user/";
 const CREATE_URL = "http://localhost:9090/api/v1/account/create";
@@ -37,8 +37,10 @@ class AccountService{
     }
     crateAccount(uid,currency){
         const credentials = JSON.stringify({
-            uid: uid,
-            currency: currency
+            currency: currency,
+            user:{
+              id: uid,
+            }
         });
         const token = localStorage.getItem('jwtToken');
         return axios.post(CREATE_URL, credentials,{

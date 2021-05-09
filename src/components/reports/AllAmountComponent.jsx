@@ -71,15 +71,15 @@ class AllAmountComponent extends Component {
                         </thead>
                         <tbody>
                             <tr key={0}>
-                                <td>{this.state.usd} USD</td>
-                                <td>{this.state.eur} EUR</td>
-                                <td>{this.state.amd} AMD</td>
+                                <td>{(this.state.usd).toFixed(2)} USD</td>
+                                <td>{(this.state.eur).toFixed(2)} EUR</td>
+                                <td>{(this.state.amd).toFixed(2)} AMD</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div className="row">
-                    <h3 className="w-100 text-center mt-3">Total amount of loans</h3>
+                    <h3 className="w-100 text-center mt-3">Total count of loans</h3>
                     <table className="table table-striped table-bordered">
                         <thead className="thead-dark">
                             {this.createLoanName()}
@@ -98,13 +98,13 @@ class AllAmountComponent extends Component {
                     AMD</button>
                 </p>
                 <Collapse in={this.state.collapseMenu[0]}>
-                    <div className="card card-body">{this.state.usd} USD</div>
+                    <div className="card card-body">{(this.state.usd).toFixed(2)} USD</div>
                 </Collapse>
                 <Collapse in={this.state.collapseMenu[1]}>
-                    <div className="card card-body">{this.state.eur} EUR</div>
+                    <div className="card card-body">{(this.state.eur).toFixed(2)} EUR</div>
                 </Collapse>
                 <Collapse in={this.state.collapseMenu[2]}>
-                    <div className="card card-body">{this.state.amd} AMD</div>
+                    <div className="card card-body">{(this.state.amd).toFixed(2)} AMD</div>
                 </Collapse>
             </div>
         );
